@@ -12,8 +12,9 @@
   "scripts": {
     "test": "npx playwright test",
     "cucumber": "cucumber-js --require-module ts-node/register 'features/**/*.feature' --require 'step-definitions/**/*.ts' --format json:reports/cucumber-report.json",
-    "report:html": "cucumber-html-reporter --theme bootstrap --jsonFile reports/cucumber-report.json --output reports/report.html --reportSuiteAsScenarios true",
-    "report:all": "npm run cucumber && npm run report:html",
+    "report:html": "npx cucumber-html-reporter --theme bootstrap --jsonFile reports/cucumber-report.json --output reports/report.html --reportSuiteAsScenarios true && start reports/report.html",
+    "report:all": "cucumber-js --format html:./reports/report.html && start ./reports/report.html",
+
     "regression": "cucumber-js --tags @regression",
     "test:all-headed-report": "npx playwright test --headed && npx playwright show-report"
   },
@@ -23,7 +24,6 @@
     "@playwright/test": "^1.58.2",
     "@types/cucumber": "^6.0.1",
     "@types/node": "^25.4.0",
-    "cucumber-html-reporter": "^6.0.0",
     "multiple-cucumber-html-reporter": "^3.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
