@@ -1,0 +1,166 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "add-employee-flow;add,-search-and-delete-employee",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Add, search and delete employee",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 314868099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "I login to the application",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 8177908199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "I navigate to Add Employee page",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 30456400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I create a new employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1028065199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I fill employee details",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:39"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 8562750299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I add address details",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:46"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1094992599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I save the employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2304298299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "I should be able to search the employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:82"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1733825099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I delete the employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:98"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1548065300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 337016499
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@smoke",
+            "line": 2
+          },
+          {
+            "name": "@employee",
+            "line": 2
+          },
+          {
+            "name": "@add_search_delete",
+            "line": 6
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "add-employee-flow",
+    "line": 4,
+    "keyword": "Feature",
+    "name": "Add Employee Flow",
+    "tags": [
+      {
+        "name": "@smoke",
+        "line": 2
+      },
+      {
+        "name": "@employee",
+        "line": 2
+      }
+    ],
+    "uri": "features\\addEmployee.feature"
+  }
+]
