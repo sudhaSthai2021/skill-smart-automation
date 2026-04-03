@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 314868099
+              "duration": 662283899
             }
           },
           {
@@ -23,11 +23,12 @@
             "line": 8,
             "name": "I login to the application",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:10"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:11"
             },
             "result": {
-              "status": "passed",
-              "duration": 8177908199
+              "status": "failed",
+              "duration": 3668394900,
+              "error_message": "page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"https://mar2026.skillsmart.us/#/landing/login\", waiting until \"load\"\u001b[22m\n\n    at LoginPage.goto (C:\\Users\\Sudha\\skill-smart-automation\\pages\\LoginPage.ts:17:21)\n    at CustomWorld.<anonymous> (C:\\Users\\Sudha\\skill-smart-automation\\features\\step-definitions\\addEmployeeSteps.ts:12:20)"
             }
           },
           {
@@ -36,11 +37,11 @@
             "line": 9,
             "name": "I navigate to Add Employee page",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:22"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:23"
             },
             "result": {
-              "status": "passed",
-              "duration": 30456400
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -49,11 +50,11 @@
             "line": 10,
             "name": "I create a new employee",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:32"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:33"
             },
             "result": {
-              "status": "passed",
-              "duration": 1028065199
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -62,11 +63,11 @@
             "line": 11,
             "name": "I fill employee details",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:39"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:40"
             },
             "result": {
-              "status": "passed",
-              "duration": 8562750299
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -75,11 +76,11 @@
             "line": 12,
             "name": "I add address details",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:46"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:47"
             },
             "result": {
-              "status": "passed",
-              "duration": 1094992599
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -88,11 +89,11 @@
             "line": 13,
             "name": "I save the employee",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:61"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:62"
             },
             "result": {
-              "status": "passed",
-              "duration": 2304298299
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -101,11 +102,11 @@
             "line": 14,
             "name": "I should be able to search the employee",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:82"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:83"
             },
             "result": {
-              "status": "passed",
-              "duration": 1733825099
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -114,11 +115,11 @@
             "line": 15,
             "name": "I delete the employee",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:98"
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:99"
             },
             "result": {
-              "status": "passed",
-              "duration": 1548065300
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -126,7 +127,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 337016499
+              "duration": 437290500
             }
           }
         ],
@@ -162,5 +163,192 @@
       }
     ],
     "uri": "features\\addEmployee.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "report-verification-across-user-roles;verify-subcontractor-payroll-data-matches-admin-union-tracking-report",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Verify Subcontractor Payroll data matches Admin Union Tracking Report",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 774302800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "I navigate to the application login page",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5661577199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I login as user \"metadata@gmaiil.com\" with password \"Govind@2003\"",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7197908799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I navigate to the \"DEFAULT_PROJECT\"",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 355264799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I go to Labor Tracking -> Payroll -> View All Payrolls",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:71"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 3497318800,
+              "error_message": "locator.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('label:has-text(\"Payroll report period\") + div [id^=\"mui-component-select-\"], [id^=\"mui-component-select-selectedPayrollId\"]').first()\u001b[22m\n\n    at LaborTrackingPage.selectLatestSignedPayrollPeriod (C:\\Users\\Sudha\\skill-smart-automation\\pages\\LaborTrackingPage.ts:67:36)\n    at CustomWorld.<anonymous> (C:\\Users\\Sudha\\skill-smart-automation\\features\\step-definitions\\reportVerificationSteps.ts:74:28)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I extract payroll standard data for the current period",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:80"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "I log out of the application",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:127"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "I login as user \"nikhil.k@sthai.co.in\" with password \"Password\"",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:13"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "I navigate to the \"DEFAULT_PROJECT\"",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:25"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "I go to Reporting -> Reports and Downloads -> Generate/View Reports",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:149"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "I generate the \"Employees with Rates and Wages Per Day - Multiple Projects\" for the extracted date range",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:153"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 21,
+            "name": "the downloaded Excel report should contain matching payroll data",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:161"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 761191399
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@report",
+            "line": 6
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "report-verification-across-user-roles",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Report Verification across User Roles",
+    "tags": [],
+    "uri": "features\\reportVerification.feature"
   }
 ]

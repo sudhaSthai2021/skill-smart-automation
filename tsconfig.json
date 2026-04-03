@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node"],
     "target": "ES2020",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -8,8 +9,11 @@
     //"ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "*": ["pages/*", "tests/*", "utils/*", "support/*"]
-    }
+  "@pages/*": ["pages/*"],
+  "@tests/*": ["tests/*"],
+  "@utils/*": ["utils/*"],
+  "@support/*": ["support/*"]
+}
   },
   "include": ["tests/**/*.ts", "pages/**/*.ts", "utils/**/*.ts", "support/**/*.ts"]
 }

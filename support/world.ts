@@ -3,6 +3,8 @@ import { chromium, Browser, Page } from 'playwright';
 import { LoginPage } from '../pages/LoginPage';
 import { NavigationPage } from '../pages/NavigationPage';
 import { AddEmployeePage } from '../pages/AddEmployeePage';
+import {LaborTrackingPage } from '../pages/LaborTrackingPage';
+import { ReportsPage } from '../pages/ReportPage';
 
 
 export class CustomWorld {
@@ -12,6 +14,10 @@ export class CustomWorld {
   login!: LoginPage;
   nav!: NavigationPage;
   addEmp!: AddEmployeePage;
+  laborTracking!:LaborTrackingPage;
+  reports!: ReportsPage;
+  payrollData: any[] = [];
+  reportPath!: string;
 
 
   async init() {
@@ -23,6 +29,8 @@ export class CustomWorld {
   this.login = new LoginPage(this.page);
   this.nav = new NavigationPage(this.page);
   this.addEmp = new AddEmployeePage(this.page);
+  this.laborTracking = new LaborTrackingPage(this.page);
+  this.reports= new ReportsPage(this.page);
 
   }
 

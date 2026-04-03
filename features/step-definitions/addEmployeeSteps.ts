@@ -1,7 +1,8 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
-
+// ✅ ADD HERE (top level, not inside any function)
+console.log('✅ reportVerificationSteps loaded');
 
 let firstName: string;
 
