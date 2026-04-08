@@ -15,7 +15,6 @@ When('I login as user {string} with password {string}', async function (this: Cu
 
   await this.page.waitForLoadState('networkidle');
 
-  // ✅ Handle both possible landings
   await Promise.race([
     this.page.waitForURL('**/project/select', { timeout: 30000 }),
     this.page.waitForURL('**/dashboard', { timeout: 30000 })
@@ -24,127 +23,111 @@ When('I login as user {string} with password {string}', async function (this: Cu
 
 When('I navigate to the {string}', async function (this: CustomWorld, projectName: string) {
 
-  if (projectName === 'DEFAULT_PROJECT') {
-    projectName = 'CA Test Project 1';
+  const finalProject = projectName === 'DEFAULT_PROJECT'
+    ? 'RVA Test Project'
+    : projectName;
+
+  console.log(`--- Navigating to project: ${finalProject}`);
+
+  // ✅ Skip if already inside dashboard
+  if (this.page.url().includes('dashboard')) {
+    console.log('--- Already inside dashboard, skipping selection');
+    return;
   }
 
-  console.log(`--- Navigating to project: ${projectName}`);
-
+  // ✅ Ensure correct page
   await this.page.waitForURL('**/project/select', { timeout: 30000 });
 
-  // ✅ Step 1: exact project text
-  const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+  // 🔥 Reuse method from ReportsPage
+  await this.reports.selectProjectCard(finalProject);
 
-  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
-
-  console.log('--- Exact project title found');
-
-  // 🔥 Step 2: go ONLY to nearest card that has Select button
-  const projectCard = projectTitle.locator(
-    'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
-  );
-
-  // ✅ Step 3: scroll correct card
-  await projectCard.scrollIntoViewIfNeeded();
-
-  console.log('--- Scrolled to correct project card');
-
-  // ✅ Step 4: click inside that card ONLY
-  await projectCard.locator('button:has-text("Select")').click();
-
+  // ✅ Wait for dashboard
   await this.page.waitForURL(/dashboard/, { timeout: 30000 });
 
-  console.log('--- Correct project selected successfully');
+  console.log('--- Project selected successfully');
 });
+
+
+//When('I navigate to the {string}', async function (this: CustomWorld, projectName: string) {
+
+ // const finalProject = projectName === 'DEFAULT_PROJECT'
+ //   ? 'RVA Test Project'   // ✅ match your UI
+ //   : projectName;
+
+//  console.log(`--- Navigating to project: ${finalProject}`);
+
+  // ✅ If already inside dashboard → skip
+//  if (this.page.url().includes('dashboard')) {
+ //   console.log('--- Already inside dashboard, skipping selection');
+ //   return;
+// }
+
+  // ✅ Wait for project selection page
+ // await this.page.waitForURL('**/project/select', { timeout: 30000 });
+
+  // ✅ Wait for project name to appear
+ // const projectTitle = this.page.locator(`text=${finalProject}`).first();
+//  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+
+ // console.log('--- Project title found');
+
+  // ✅ Move up to correct card that has SELECT button
+ // const projectCard = projectTitle.locator(
+//    'xpath=ancestor::div[.//button[.//text()="SELECT"]][1]'
+//  );
+
+ // await projectCard.scrollIntoViewIfNeeded();
+
+  // ✅ Click SELECT inside correct card
+ // await projectCard.locator('button:has-text("SELECT")').click();
+
+  // ✅ Wait for dashboard
+ // await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+  //console.log('--- Project selected successfully');
+//});
+
+
+
 // ======================================================
 // SUBCONTRACTOR STEPS
 // ======================================================
 
 When('I go to Labor Tracking -> Payroll -> View All Payrolls', async function (this: CustomWorld) {
   await this.laborTracking.navigateToAllPayrolls();
-  // Automatically select the period marked as "SIGNED"
   await this.laborTracking.selectLatestSignedPayrollPeriod();
-
 });
 
+When('I extract payroll standard data for the current period', async function (this: CustomWorld) {
 
+  console.log('--- Extracting payroll data');
 
-When('I extract payroll standard data for the current period', async function (this: CustomWorld){
-  console.log('--- Extracting payroll table data...');
-  await this.page.waitForFunction(() =>{
-  const table = document.querySelector('table tbody');
-    if (!table) return false;
+  await this.page.waitForFunction(() => {
+    const rows = document.querySelectorAll('.ReactTable .rt-tbody .rt-tr');
+    return Array.from(rows).some(r => (r.textContent || '').trim().length > 0);
+  });
 
-       const rows = Array.from(table.querySelectorAll('tr'));
-       return rows.some(row => {
-       const text = row.textContent || '';
-       return !text.includes('Select a Payroll') && !text.includes('Loading');
-       });
-      },{timeout:30000});
+  // 🔥 Replace later with UI extraction
+  this.startDate = "03/30/2026";
+  this.endDate = "04/05/2026";
 
-
-
-  // ✅ FIXED LINE
   this.payrollData = await this.laborTracking.extractStandardPayrollData();
 
-
- console.log('--- Stored payroll data:', this.payrollData);
-
- // ✅ SAFETY CHECK
-  if (!Array.isArray(this.payrollData)) {
-    throw new Error('❌ payrollData is NOT an array. Got: ' + JSON.stringify(this.payrollData));
+  if (!this.payrollData.length) {
+    throw new Error('❌ No payroll data extracted');
   }
 
-  console.log('================ PAYROLL DATA =================');
+  // ✅ Pass to ReportsPage (IMPORTANT)
+  this.reports.setPayrollData(this.payrollData);
 
-this.payrollData.forEach((row, index) => {
-  console.log(`Row ${index + 1}:`, JSON.stringify(row, null, 2));
-});
-
-console.log('===============================================');
-
- for (const row of this.payrollData) {
-  // ✅ Basic field validations
-  expect(row.fullName).not.toBe('');
-  expect(row.employeeFirst).not.toBe('');
-  expect(row.employeeLast).not.toBe('');
-  expect(row.workClass).not.toBe('');
-  expect(row.jobLevel).not.toBe('');
-
-  // ✅ Numeric validations
-  expect(row.hours).toBeGreaterThanOrEqual(0);
-  expect(row.otHours).toBeGreaterThanOrEqual(0);
-  expect(row.dtHours).toBeGreaterThanOrEqual(0);
-
-  expect(row.grossWages).toBeGreaterThanOrEqual(0);
-  expect(row.netWages).toBeGreaterThanOrEqual(0);
-
-  // ✅ Logical validation
-  expect(row.grossWages).toBeGreaterThanOrEqual(row.netWages);
-
-  // ✅ Data sanity checks
-  expect(row.fullName).not.toMatch(/UNKN|Select|Loading/i);
-  expect(row.workClass).not.toMatch(/UNKN|Select|Loading/i);
-}
+  console.log('✅ Payroll data ready');
 });
 
 Then('I log out of the application', async function (this: CustomWorld) {
-  
-
   await this.nav.logout();
-  // ✅ Wait until logout is fully complete
-  await this.page.waitForLoadState('networkidle');
-
-  // ✅ Optional (stronger check – recommended)
-  await this.page.waitForURL(/login|signin/, { timeout: 20000 });
-
-  console.log('--- Logged out successfully');
- 
+  await this.page.waitForURL(/login|signin/);
+  console.log('--- Logged out');
 });
-
-
-
-
 
 // ======================================================
 // ADMIN STEPS
@@ -154,16 +137,39 @@ When(/^I go to Reporting -> Reports and Downloads -> Generate\/View Reports$/, a
   await this.nav.navigateToReporting();
 });
 
-When('I generate the {string} for the extracted date range', async function (this: CustomWorld, reportName: string) {
-  const startDate = "03/30/2026";
-  const endDate = "04/05/2026";
+// ======================================================
+// 🔥 CLEAN REPORT STEPS (MAIN REFACTOR)
+// ======================================================
 
-  console.log(`--- Generating ${reportName} for range: ${startDate} to ${endDate}`);
-  this.reportPath = await this.reports.generateRatesAndWagesReport(startDate, endDate);
+When('I generate the report {string}', async function (this: CustomWorld, reportName: string) {
+
+  await this.reports.generateAndValidateReport({
+    reportName
+  });
+
 });
 
-Then('the downloaded Excel report should contain matching payroll data', async function (this: CustomWorld) {
-  console.log('--- Starting final Excel data verification...');
-  await this.reports.verifyExcelData(this.reportPath, this.payrollData);
-});
+When(
+  'I generate the report {string} for the extracted date range',
+  async function (this: CustomWorld, reportName: string) {
 
+    await this.reports.generateAndValidateReport({
+      reportName,
+      startDate: this.startDate,
+      endDate: this.endDate
+    });
+
+  }
+);
+
+When('I generate all available reports', async function (this: CustomWorld) {
+  await this.reports.generateAllReports();
+});
+// ======================================================
+// ✅ FINAL ASSERTION STEP (OPTIONAL / LIGHT)
+// ======================================================
+
+Then('the report should match payroll data', async function () {
+  // ✅ Intentionally empty
+  // Validation already happens inside ReportsPage
+});

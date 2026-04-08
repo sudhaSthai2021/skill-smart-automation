@@ -21,13 +21,17 @@
     "@cucumber/cucumber": "^12.7.0",
     "@cucumber/html-formatter": "^23.0.0",
     "@playwright/test": "^1.58.2",
+    "@types/adm-zip": "^0.5.8",
     "@types/cucumber": "^6.0.1",
     "@types/node": "^25.5.0",
+    "@types/pdf-parse": "^1.1.5",
     "multiple-cucumber-html-reporter": "^3.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "adm-zip": "^0.5.17",
+    "pdf-parse": "^1.1.1",
     "xlsx": "^0.18.5"
   }
 }
