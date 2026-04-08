@@ -120,4 +120,39 @@ async navigateToReporting() {
 
   console.log('--- Reporting page loaded successfully');
 }
+
+// ======================================================
+// PROJECT SELECTION (GLOBAL NAVIGATION)
+// ======================================================
+async selectProject(projectName: string) {
+  console.log('--- Selecting project:', projectName);
+
+  // Wait for project selection page
+  await this.page.waitForURL('**/project/select', { timeout: 30000 });
+
+  // Step 1: Find project title
+  const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+
+  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+
+  console.log('--- Project title found');
+
+  // Step 2: Locate correct parent card
+  const projectCard = projectTitle.locator(
+    'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
+  );
+
+  // Step 3: Scroll safely
+  await projectCard.scrollIntoViewIfNeeded();
+
+  console.log('--- Scrolled to project card');
+
+  // Step 4: Click Select
+  await projectCard.locator('button:has-text("Select")').click();
+
+  // Step 5: Wait for dashboard
+  await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+  console.log('--- Project selected successfully');
+}
 }

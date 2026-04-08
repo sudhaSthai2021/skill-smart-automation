@@ -16,8 +16,16 @@ export class CustomWorld {
   addEmp!: AddEmployeePage;
   laborTracking!:LaborTrackingPage;
   reports!: ReportsPage;
+  lastReportName?: string;
   payrollData: any[] = [];
-  reportPath!: string;
+
+  //FIXED
+  reportPath?: string | null;
+  project?: string;
+
+  // ✅ ADD THESE
+  startDate?: string;
+  endDate?: string;
 
 
   async init() {
