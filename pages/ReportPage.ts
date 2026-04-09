@@ -146,6 +146,7 @@ export class ReportsPage {
     }).filter(r => r !== null);
 
     console.log('--- Formatted Excel:', formattedExcel);
+    console.log("SUDHA TEST 123");
 
     // ✅ Compare UI vs Excel
     for (const uiRow of uiData) {
