@@ -14,7 +14,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto('https://mar2026.skillsmart.us/#/landing/login' , {waitUntil: 'load',   // or 'domcontentloaded'
+    await this.page.goto('https://apr2026.skillsmart.us/#/landing/login' , {waitUntil: 'load',   // or 'domcontentloaded'
     timeout: 60000       // ✅ increase timeout
   });
   }

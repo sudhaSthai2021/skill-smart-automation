@@ -306,47 +306,43 @@ export class ReportsPage {
 
     console.log('✅ Payroll Excel validated');
   }
-
+/*
   // ======================================================
 // ✅ PROJECT SELECTION (FIXED + STABLE)
 // ======================================================
 
 // ReportsPage.ts
-async selectProjectCard(projectName: string) {
-  console.log('--- Selecting project card:', projectName);
+async selectProject(projectName: string) {
+  console.log(`--- Selecting project: ${projectName}`);
 
-  const buttons = this.page.locator('button:has-text("SELECT")');
-  const count = await buttons.count();
+  // Try card first (for landing page)
+  const cardLocator = this.page.locator('div.MuiGrid-item.MuiGrid-grid-sm-4').filter({
+    has: this.page.locator(`p:has-text("${projectName}")`)
+  });
 
-  console.log(`--- Found ${count} project cards`);
-
-  for (let i = 0; i < count; i++) {
-    const btn = buttons.nth(i);
-
-    // ✅ Go to CLOSEST container only
-    const card = btn.locator('xpath=ancestor::div[.//p][1]');
-
-    const text = await card.innerText();
-
-    console.log(`--- Checking card ${i}: ${text}`);
-
-    // ✅ STRICT MATCH (line-level match)
-    const lines = text.split('\n').map(t => t.trim());
-
-    if (lines.includes(projectName)) {
-      console.log('--- Exact match found, clicking SELECT');
-
-      await btn.scrollIntoViewIfNeeded();
-      await btn.click();
-
-      return;
-    }
+  const cardCount = await cardLocator.count();
+  if (cardCount > 0) {
+    console.log(`Found ${cardCount} matching project card(s)`);
+    await cardLocator.first().scrollIntoViewIfNeeded();
+    await cardLocator.first().locator('button:has-text("Select")').click();
+    console.log('--- Project card clicked');
+    return;
   }
 
-  throw new Error(`❌ Project not found: ${projectName}`);
-}
- // Get all report names from the list
+  // If no card found, try dropdown (for Reports page)
+  const dropdownLocator = this.page.locator('div.MuiSelect-root');
+  await dropdownLocator.waitFor({ state: 'visible', timeout: 15000 });
+  await dropdownLocator.click();
 
+  const optionLocator = this.page.locator('li.MuiMenuItem-root').filter({
+    hasText: projectName
+  });
+  await optionLocator.first().click();
+
+  console.log('--- Project selected from dropdown');
+}
+
+*/
 async getAllReportNames(): Promise<string[]> {
   console.log('--- Fetching all report names');
 
@@ -368,22 +364,34 @@ async getAllReportNames(): Promise<string[]> {
 
   console.log(`--- Found ${count} visible reports`);
 
-  // ✅ Scroll + collect (important for long lists)
+  // 🔥 Define invalid values
+  const invalidExact = ['Select One'];
+  const invalidKeywords = ['custom', 'standard'];
+
   for (let i = 0; i < count; i++) {
     const item = options.nth(i);
 
     await item.scrollIntoViewIfNeeded();
 
     const text = (await item.innerText()).trim();
+    if (!text) continue;
 
+    const lower = text.toLowerCase();
+
+    // ❌ Skip unwanted entries
     if (
-  text &&
-  !reportNames.includes(text) &&
-  text !== 'Select One' &&
-  !text.toLowerCase().includes('custom')
-) {
-  reportNames.push(text);
-}
+      invalidExact.includes(text) ||
+      invalidKeywords.some(k => lower.includes(k))
+    ) {
+      console.log(`--- Skipping invalid: ${text}`);
+      continue;
+    }
+
+    // ✅ Add only valid reports
+    if (!reportNames.includes(text)) {
+      console.log(`--- Valid report: ${text}`);
+      reportNames.push(text);
+    }
   }
 
   // ✅ Close dropdown safely

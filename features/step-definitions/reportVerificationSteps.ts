@@ -24,25 +24,21 @@ When('I login as user {string} with password {string}', async function (this: Cu
 When('I navigate to the {string}', async function (this: CustomWorld, projectName: string) {
 
   const finalProject = projectName === 'DEFAULT_PROJECT'
-    ? 'RVA Test Project'
+    ? 'CSI-000002 | WTP Access Control Systems - Phase 1'
     : projectName;
 
   console.log(`--- Navigating to project: ${finalProject}`);
 
-  // ✅ Skip if already inside dashboard
-  if (this.page.url().includes('dashboard')) {
-    console.log('--- Already inside dashboard, skipping selection');
+  const url = this.page.url();
+
+  // ✅ If already inside a project → skip
+  if (!url.includes('/project/select')) {
+    console.log('--- Already inside a project, skipping selection');
     return;
   }
 
-  // ✅ Ensure correct page
-  await this.page.waitForURL('**/project/select', { timeout: 30000 });
-
-  // 🔥 Reuse method from ReportsPage
-  await this.reports.selectProjectCard(finalProject);
-
-  // ✅ Wait for dashboard
-  await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+  // ✅ Use GLOBAL navigation method
+  await this.nav.selectProject(finalProject);
 
   console.log('--- Project selected successfully');
 });
@@ -137,6 +133,36 @@ When(/^I go to Reporting -> Reports and Downloads -> Generate\/View Reports$/, a
   await this.nav.navigateToReporting();
 });
 
+/*When('I select the project {string}', async function (this: CustomWorld, projectName: string) {
+
+  console.log(`--- Selecting project: ${projectName}`);
+
+  // ✅ Wait for page stability (optional but safe)
+  await this.page.waitForLoadState('networkidle');
+
+  // ✅ Use global navigation (handles card + dropdown)
+  await this.nav.selectProject(projectName);
+
+  console.log(`--- Project selected successfully: ${projectName}`);
+});
+
+When('I select the project {string}', async function (this: CustomWorld, projectName: string) {
+  const page = this.page; // assuming CustomWorld has page
+
+  // Locate the card containing the project name
+  const projectCard = page.locator('div.MuiGrid-item').filter({
+    has: page.locator(`p:has-text("${projectName}")`)
+  });
+
+  // Wait for it to be visible
+  await projectCard.waitFor({ state: 'visible', timeout: 30000 });
+
+  // Click the "Select" button inside the card
+  await projectCard.locator('button:has-text("Select")').click();
+
+  console.log(`Selected project: ${projectName}`);
+});
+*/
 // ======================================================
 // 🔥 CLEAN REPORT STEPS (MAIN REFACTOR)
 // ======================================================

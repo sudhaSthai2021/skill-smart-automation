@@ -96,17 +96,19 @@ export class LaborTrackingPage {
     // 4. Click the FIRST one (latest)
     await signedOptions.first().click();
 
-    // ✅ WAIT for table to refresh properly
-    await this.page.waitForFunction(() => {
-      const rows = document.querySelectorAll('.ReactTable .rt-tbody .rt-tr-group');
+    // ✅ WAIT for table to refresh properly (reliable way)
 
-      return Array.from(rows).some(row => {
-        const text = row.textContent || '';
-        return text.trim().length > 0 &&
-          !text.includes('Select a Payroll') &&
-          !text.includes('Loading');
-      });
-    }, { timeout: 30000 });
+   // Wait until at least one row is visible
+      const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+      await rows.first().waitFor({ state: 'visible', timeout: 30000 });
+
+   // Wait until real data appears (not empty/loading rows)
+      await this.page.waitForSelector(
+      '.ReactTable .rt-tbody .rt-tr-group >> text=/[A-Za-z]/',
+    { timeout: 30000 }
+);
+
+console.log('--- Table fully loaded with data');
 
     console.log('--- Table refreshed after selecting payroll period');
 
@@ -178,21 +180,87 @@ export class LaborTrackingPage {
 
     console.log('--- Table data is now visible.');
   }
+async extractStandardPayrollData(): Promise<PayrollRow[]> {
+  console.log('--- Extracting ALL rows from ReactTable...');
+
+  const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+
+  const rowCount = await rows.count();
+  console.log('Row groups found:', rowCount);
+
+  if (rowCount === 0) {
+    throw new Error('❌ No rows found in table');
+  }
+
+  const data: PayrollRow[] = [];
+
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const cells = row.locator('.rt-td');
+
+    const cellCount = await cells.count();
+    if (cellCount === 0) continue;
+
+    const getText = async (index: number) =>
+      (await cells.nth(index).innerText()).trim();
+
+    const rawName = (await getText(2))
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!rawName || rawName.includes('Select') || rawName.includes('Loading')) {
+      continue;
+    }
+
+    const [lastName, firstName] = rawName.split(',').map(s => s?.trim());
+
+    const cleanNumber = (val: string) =>
+      parseFloat(val.replace(/[$,]/g, '').trim()) || 0;
+
+    const rowData: PayrollRow = {
+      fullName: rawName,
+      employeeFirst: firstName || '',
+      employeeLast: lastName || '',
+      workClass: await getText(3),
+      jobLevel: await getText(4),
+      hours: cleanNumber(await getText(6)),
+      otHours: cleanNumber(await getText(7)),
+      dtHours: cleanNumber(await getText(8)),
+      grossWages: cleanNumber(await getText(9)),
+      netWages: cleanNumber(await getText(10)),
+    };
+
+    data.push(rowData);
+  }
+
+  console.log('--- Extracted rows count:', data.length);
+  console.log('--- Clean Data:', data);
+
+  if (data.length === 0) {
+    throw new Error('❌ No valid payroll rows found.');
+  }
+
+  return data;
+}
 
 
-
-
+/*
   async extractStandardPayrollData(): Promise<PayrollRow[]> {
     console.log('--- Extracting ALL rows from ReactTable...');
 
-    // ✅ Wait for REAL data
-    await this.page.waitForFunction(() => {
-      const rows = document.querySelectorAll('.ReactTable .rt-tbody .rt-tr');
-      return Array.from(rows).some(row => {
-        const cells = row.querySelectorAll('.rt-td');
-        return cells.length > 0 && (cells[0].textContent || '').trim().length > 0;
-      });
-    }, { timeout: 30000 });
+  // ✅ Wait for REAL data
+  await this.page.waitForSelector(
+    '.ReactTable .rt-tbody .rt-tr >> text=/[A-Za-z]/',
+    { timeout: 30000 }
+  );
+
+  // ✅ Debug pause (use only when needed)
+  console.log('📸 Taking screenshot before extraction...');
+  await this.page.screenshot({ path: 'payroll-before-extract.png', fullPage: true });
+
+  // Optional manual pause
+    await this.page.pause();
 
     // ❌ REMOVE TYPE HERE
     const rawData = await this.page.evaluate(() => {
@@ -242,6 +310,6 @@ export class LaborTrackingPage {
 
     return data;
   }
-
+*/
 
 }

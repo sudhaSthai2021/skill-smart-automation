@@ -121,14 +121,93 @@ async navigateToReporting() {
   console.log('--- Reporting page loaded successfully');
 }
 
+async selectProject(projectName: string) {
+  console.log('--- Selecting project:', projectName);
+
+  await this.page.waitForURL('**/project/select', { timeout: 30000 });
+
+  const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+
+  const projectCard = projectTitle.locator(
+    'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
+  );
+
+  await projectCard.scrollIntoViewIfNeeded();
+  await projectCard.locator('button:has-text("Select")').click();
+
+  await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+  console.log('--- Project selected successfully');
+}
+
+/*
+
+async selectProject(projectName: string) {
+  console.log('--- Selecting project:', projectName);
+
+  const url = this.page.url();
+
+  // ======================================================
+  // ✅ CASE 1: PROJECT CARD PAGE
+  // ======================================================
+  if (url.includes('/project/select')) {
+
+    const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+    await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+
+    console.log('--- Project title found (card view)');
+
+    const projectCard = projectTitle.locator(
+      'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
+    );
+
+    await projectCard.scrollIntoViewIfNeeded();
+
+    await projectCard.locator('button:has-text("Select")').click();
+
+    await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+    console.log('--- Project selected via card');
+    return;
+  }
+
+  // ======================================================
+  // ✅ CASE 2: DROPDOWN (REPORT PAGE)
+  // ======================================================
+  console.log('--- Trying dropdown selection');
+
+  const dropdown = this.page.locator('div[role="button"]').filter({
+    hasText: 'Project'
+  });
+
+  if (await dropdown.count() > 0) {
+    await dropdown.first().click();
+
+    const option = this.page.locator('li').filter({
+      hasText: projectName
+    });
+
+    await option.first().click();
+
+    console.log('--- Project selected via dropdown');
+    return;
+  }
+
+  // ======================================================
+  // ❌ FAIL SAFE
+  // ======================================================
+  throw new Error(`❌ Could not find project selection UI for: ${projectName}`);
+}
+
+
 // ======================================================
 // PROJECT SELECTION (GLOBAL NAVIGATION)
 // ======================================================
 async selectProject(projectName: string) {
   console.log('--- Selecting project:', projectName);
 
-  // Wait for project selection page
-  await this.page.waitForURL('**/project/select', { timeout: 30000 });
+ 
 
   // Step 1: Find project title
   const projectTitle = this.page.locator('p', { hasText: projectName }).first();
@@ -155,4 +234,6 @@ async selectProject(projectName: string) {
 
   console.log('--- Project selected successfully');
 }
+
+*/
 }
