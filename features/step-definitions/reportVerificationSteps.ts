@@ -44,46 +44,6 @@ When('I navigate to the {string}', async function (this: CustomWorld, projectNam
 });
 
 
-//When('I navigate to the {string}', async function (this: CustomWorld, projectName: string) {
-
- // const finalProject = projectName === 'DEFAULT_PROJECT'
- //   ? 'RVA Test Project'   // ✅ match your UI
- //   : projectName;
-
-//  console.log(`--- Navigating to project: ${finalProject}`);
-
-  // ✅ If already inside dashboard → skip
-//  if (this.page.url().includes('dashboard')) {
- //   console.log('--- Already inside dashboard, skipping selection');
- //   return;
-// }
-
-  // ✅ Wait for project selection page
- // await this.page.waitForURL('**/project/select', { timeout: 30000 });
-
-  // ✅ Wait for project name to appear
- // const projectTitle = this.page.locator(`text=${finalProject}`).first();
-//  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
-
- // console.log('--- Project title found');
-
-  // ✅ Move up to correct card that has SELECT button
- // const projectCard = projectTitle.locator(
-//    'xpath=ancestor::div[.//button[.//text()="SELECT"]][1]'
-//  );
-
- // await projectCard.scrollIntoViewIfNeeded();
-
-  // ✅ Click SELECT inside correct card
- // await projectCard.locator('button:has-text("SELECT")').click();
-
-  // ✅ Wait for dashboard
- // await this.page.waitForURL(/dashboard/, { timeout: 30000 });
-
-  //console.log('--- Project selected successfully');
-//});
-
-
 
 // ======================================================
 // SUBCONTRACTOR STEPS
@@ -92,6 +52,9 @@ When('I navigate to the {string}', async function (this: CustomWorld, projectNam
 When('I go to Labor Tracking -> Payroll -> View All Payrolls', async function (this: CustomWorld) {
   await this.laborTracking.navigateToAllPayrolls();
   await this.laborTracking.selectLatestSignedPayrollPeriod();
+
+  // Ensure UI reflects selected payroll
+await this.page.waitForLoadState('networkidle');
 });
 
 When('I extract payroll standard data for the current period', async function (this: CustomWorld) {
@@ -103,9 +66,19 @@ When('I extract payroll standard data for the current period', async function (t
     return Array.from(rows).some(r => (r.textContent || '').trim().length > 0);
   });
 
-  // 🔥 Replace later with UI extraction
-  this.startDate = "03/30/2026";
-  this.endDate = "04/05/2026";
+  // ✅ Get REAL dates from UI
+  const { startDate, endDate } = await this.laborTracking.getSelectedPayrollDates();
+  console.log('📅 Extracted Start Date:', startDate);
+  console.log('📅 Extracted End Date:', endDate);
+
+
+  if (!startDate || !endDate) {
+  throw new Error('❌ Payroll dates not found in UI');
+}
+
+  this.startDate = startDate;
+  this.endDate = endDate;
+ 
 
   this.payrollData = await this.laborTracking.extractStandardPayrollData();
 
@@ -133,63 +106,13 @@ When(/^I go to Reporting -> Reports and Downloads -> Generate\/View Reports$/, a
   await this.nav.navigateToReporting();
 });
 
-/*When('I select the project {string}', async function (this: CustomWorld, projectName: string) {
-
-  console.log(`--- Selecting project: ${projectName}`);
-
-  // ✅ Wait for page stability (optional but safe)
-  await this.page.waitForLoadState('networkidle');
-
-  // ✅ Use global navigation (handles card + dropdown)
-  await this.nav.selectProject(projectName);
-
-  console.log(`--- Project selected successfully: ${projectName}`);
-});
-
-When('I select the project {string}', async function (this: CustomWorld, projectName: string) {
-  const page = this.page; // assuming CustomWorld has page
-
-  // Locate the card containing the project name
-  const projectCard = page.locator('div.MuiGrid-item').filter({
-    has: page.locator(`p:has-text("${projectName}")`)
-  });
-
-  // Wait for it to be visible
-  await projectCard.waitFor({ state: 'visible', timeout: 30000 });
-
-  // Click the "Select" button inside the card
-  await projectCard.locator('button:has-text("Select")').click();
-
-  console.log(`Selected project: ${projectName}`);
-});
-*/
-// ======================================================
-// 🔥 CLEAN REPORT STEPS (MAIN REFACTOR)
-// ======================================================
-
-When('I generate the report {string}', async function (this: CustomWorld, reportName: string) {
-
-  await this.reports.generateAndValidateReport({
-    reportName
-  });
-
-});
-
-When(
-  'I generate the report {string} for the extracted date range',
-  async function (this: CustomWorld, reportName: string) {
-
-    await this.reports.generateAndValidateReport({
-      reportName,
-      startDate: this.startDate,
-      endDate: this.endDate
-    });
-
-  }
-);
 
 When('I generate all available reports', async function (this: CustomWorld) {
-  await this.reports.generateAllReports();
+
+  if (!this.startDate || !this.endDate) {
+    throw new Error('❌ Dates missing before report generation');
+  }
+  await this.reports.generateAllReports(this.startDate, this.endDate);
 });
 // ======================================================
 // ✅ FINAL ASSERTION STEP (OPTIONAL / LIGHT)

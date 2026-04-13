@@ -64,10 +64,9 @@ export class LaborTrackingPage {
 
   async getSelectedPayrollDates(): Promise<{ startDate: string; endDate: string }> {
 
+    
   const text = await this.page
-    .locator('label:has-text("Payroll report period")')
-    .locator('..')
-    .locator('div')
+    .locator('#mui-component-select-selectedPayrollId')
     .innerText();
 
   console.log('--- Payroll period text:', text);
