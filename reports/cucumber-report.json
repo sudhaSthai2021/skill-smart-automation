@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 662283899
+              "duration": 334260399
             }
           },
           {
@@ -26,9 +26,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:11"
             },
             "result": {
-              "status": "failed",
-              "duration": 3668394900,
-              "error_message": "page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"https://mar2026.skillsmart.us/#/landing/login\", waiting until \"load\"\u001b[22m\n\n    at LoginPage.goto (C:\\Users\\Sudha\\skill-smart-automation\\pages\\LoginPage.ts:17:21)\n    at CustomWorld.<anonymous> (C:\\Users\\Sudha\\skill-smart-automation\\features\\step-definitions\\addEmployeeSteps.ts:12:20)"
+              "status": "passed",
+              "duration": 7289301199
             }
           },
           {
@@ -40,8 +39,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:23"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 41622100
             }
           },
           {
@@ -53,8 +52,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:33"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 942628699
             }
           },
           {
@@ -66,8 +65,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:40"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 6220381699
             }
           },
           {
@@ -79,8 +78,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:47"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 1053967300
             }
           },
           {
@@ -92,8 +91,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:62"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 3114203499
             }
           },
           {
@@ -105,8 +104,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:83"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 1597221799
             }
           },
           {
@@ -118,8 +117,8 @@
               "location": "features\\step-definitions\\addEmployeeSteps.ts:99"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 7450448399
             }
           },
           {
@@ -127,7 +126,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 437290500
+              "duration": 469822200
             }
           }
         ],
@@ -169,17 +168,17 @@
     "elements": [
       {
         "description": "",
-        "id": "report-verification-across-user-roles;verify-subcontractor-payroll-data-matches-admin-union-tracking-report",
+        "id": "report-verification-across-user-roles;verify-subcontractor-payroll-data-matches-admin-reports",
         "keyword": "Scenario",
         "line": 7,
-        "name": "Verify Subcontractor Payroll data matches Admin Union Tracking Report",
+        "name": "Verify Subcontractor Payroll data matches Admin Reports",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 774302800
+              "duration": 283691000
             }
           },
           {
@@ -192,7 +191,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 5661577199
+              "duration": 2825321199
             }
           },
           {
@@ -205,7 +204,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 7197908799
+              "duration": 22201070999
             }
           },
           {
@@ -214,11 +213,11 @@
             "line": 11,
             "name": "I navigate to the \"DEFAULT_PROJECT\"",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:25"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:24"
             },
             "result": {
               "status": "passed",
-              "duration": 355264799
+              "duration": 372366800
             }
           },
           {
@@ -227,12 +226,11 @@
             "line": 12,
             "name": "I go to Labor Tracking -> Payroll -> View All Payrolls",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:71"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:92"
             },
             "result": {
-              "status": "failed",
-              "duration": 3497318800,
-              "error_message": "locator.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('label:has-text(\"Payroll report period\") + div [id^=\"mui-component-select-\"], [id^=\"mui-component-select-selectedPayrollId\"]').first()\u001b[22m\n\n    at LaborTrackingPage.selectLatestSignedPayrollPeriod (C:\\Users\\Sudha\\skill-smart-automation\\pages\\LaborTrackingPage.ts:67:36)\n    at CustomWorld.<anonymous> (C:\\Users\\Sudha\\skill-smart-automation\\features\\step-definitions\\reportVerificationSteps.ts:74:28)"
+              "status": "passed",
+              "duration": 10993337799
             }
           },
           {
@@ -241,11 +239,11 @@
             "line": 13,
             "name": "I extract payroll standard data for the current period",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:80"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:97"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 41596799
             }
           },
           {
@@ -254,11 +252,11 @@
             "line": 14,
             "name": "I log out of the application",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:127"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:122"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 1053047500
             }
           },
           {
@@ -270,8 +268,8 @@
               "location": "features\\step-definitions\\reportVerificationSteps.ts:13"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 10775541599
             }
           },
           {
@@ -280,11 +278,11 @@
             "line": 18,
             "name": "I navigate to the \"DEFAULT_PROJECT\"",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:25"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:24"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 392815400
             }
           },
           {
@@ -293,37 +291,37 @@
             "line": 19,
             "name": "I go to Reporting -> Reports and Downloads -> Generate/View Reports",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:149"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:132"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 2208091200
             }
           },
           {
             "arguments": [],
-            "keyword": "And ",
-            "line": 20,
-            "name": "I generate the \"Employees with Rates and Wages Per Day - Multiple Projects\" for the extracted date range",
+            "keyword": "When ",
+            "line": 23,
+            "name": "I generate all available reports",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:153"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:191"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 107024162400
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 21,
-            "name": "the downloaded Excel report should contain matching payroll data",
+            "line": 25,
+            "name": "the report should match payroll data",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:161"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:198"
             },
             "result": {
-              "status": "skipped",
-              "duration": 0
+              "status": "passed",
+              "duration": 185200
             }
           },
           {
@@ -331,7 +329,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 761191399
+              "duration": 376465900
             }
           }
         ],
