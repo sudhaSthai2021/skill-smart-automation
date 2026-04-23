@@ -13,11 +13,15 @@ export class AddEmployeePage {
   readonly genderDropdown: Locator;
   readonly ethnicityDropdown: Locator;
   readonly addressHistoryTab: Locator;
+  readonly workInfoTab: Locator;
+  readonly payRatesTab: Locator;
+  readonly addNewEntryRowBtn: Locator;
   readonly addNewButton: Locator;
   readonly street1Input: Locator;
   readonly cityInput: Locator;
   readonly stateInput: Locator;
   readonly zipCodeInput: Locator;
+  readonly apprenticeNumberInput: Locator;
   readonly addButton: Locator;
   readonly successToast: Locator;
   readonly countryDropdown: Locator;
@@ -45,6 +49,10 @@ export class AddEmployeePage {
     this.genderDropdown = page.locator('#mui-component-select-genderId');
     this.ethnicityDropdown = page.locator('#mui-component-select-ethnicityId');
     this.addressHistoryTab = page.getByRole('tab', { name: 'Address History' });
+    this.workInfoTab=page.getByRole('tab', { name: 'Work Info' });
+    this.payRatesTab=page.getByRole('tab', { name: 'Pay Rates' });
+    this.apprenticeNumberInput=page.locator('#apprenticeNumber');
+    this.addNewEntryRowBtn=page.getByRole('button', { name: 'ADD NEW ENTRY ROW' });
     this.addNewButton = page.locator('p:has-text("Add New")');
     this.deleteButton =  this.page.getByRole('button', { name: 'Delete Employee' });
     this.confirmDeleteButton = page.getByRole('button', { name: /confirm|yes/i });
@@ -85,6 +93,306 @@ export class AddEmployeePage {
     
      return { firstName, lastName }; // ✅ return values
   }
+  //============================================================================================================
+  async addAddressDetails(
+  street1: string,
+  city: string,
+  state: string,
+  zip: string,
+  effectiveDate: string
+) {
+  console.log('--- Adding Address Details');
+
+  // ✅ Tab navigation inside POM
+  await expect(this.addressHistoryTab).toBeVisible();
+  await this.addressHistoryTab.click();
+
+  // ✅ Click Add New
+  await this.addNewButton.click();
+
+  // ✅ Fill form
+  await expect(this.street1Input).toBeVisible();
+  await this.street1Input.fill(street1);
+
+  await this.cityInput.fill(city);
+  await this.stateInput.fill(state);
+  await this.zipCodeInput.fill(zip);
+
+  // Country
+  await this.countryDropdown.click();
+  await this.page.locator('li[role="option"]:has-text("United States")').click();
+
+  // Date
+  await this.effectiveDateInput.fill(effectiveDate);
+
+  // Add
+  await this.addButton.click();
+
+  console.log('✅ Address added');
+}
+
+  //=============================================================================================================
+
+  async fillWorkInfo() {
+  console.log('--- Navigating to Work Info');
+
+  await this.workInfoTab.click();
+
+  // ✅ Wait properly for field
+  await this.apprenticeNumberInput.waitFor({ state: 'visible', timeout: 10000 });
+
+  // ✅ Clear + fill (important for MUI inputs)
+  await this.apprenticeNumberInput.fill('');
+  await this.apprenticeNumberInput.fill('1233');
+
+  console.log('✅ Apprentice Number entered');
+}
+
+//==============================================================================================================
+async addPayRates() {
+  console.log('--- Adding Pay Rates');
+
+  await this.payRatesTab.click();
+  await this.addNewEntryRowBtn.click();
+
+  const dialog = this.page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // ============================
+  // 1️⃣ Select Dropdown (Label)
+  // ============================
+  const labelDropdown = dialog.getByRole('button', { name: /select/i }).first();
+  await labelDropdown.click();
+
+  const listbox = this.page.getByRole('listbox');
+  await expect(listbox).toBeVisible();
+
+  const options = listbox.getByRole('option');
+
+  for (let i = 0; i < await options.count(); i++) {
+    const opt = options.nth(i);
+    const disabled = await opt.getAttribute('aria-disabled');
+
+    if (disabled !== 'true') {
+      await opt.click();
+      break;
+    }
+  }
+
+  await expect(listbox).toBeHidden({ timeout: 5000 });
+
+  // 🔥 IMPORTANT: wait for UI update after dropdown selection
+  await this.page.waitForTimeout(1000);
+
+  // ============================
+  // 2️⃣ Full Time Checkbox
+  // ============================
+  const fullTimeCheckbox = dialog.getByRole('checkbox', { name: /full time/i });
+
+  if (await fullTimeCheckbox.isVisible()) {
+    const checked = await fullTimeCheckbox.isChecked().catch(() => false);
+
+    if (!checked) {
+      await fullTimeCheckbox.click();
+    }
+  }
+
+  // 🔥 wait for dependent fields to appear
+  await this.page.waitForTimeout(1000);
+
+  // ============================
+  // 3️⃣ Effective Date
+  // ============================
+  const dateInputs = dialog.locator('input[placeholder="mm/dd/yyyy"]');
+
+  const effectiveDate = dateInputs.first();
+  await expect(effectiveDate).toBeVisible({ timeout: 15000 });
+
+  await effectiveDate.click();
+  await this.page.keyboard.type('04/01/2026');
+  await this.page.keyboard.press('Tab');
+
+  // ============================
+  // 4️⃣ Expiry Date
+  // ============================
+  const expiryDate = dateInputs.nth(1);
+
+  await expect(expiryDate).toBeVisible({ timeout: 15000 });
+
+  await expiryDate.click();
+  await this.page.keyboard.type('12/31/2026');
+  await this.page.keyboard.press('Tab');
+
+  // ============================
+  // 5️⃣ Fill other inputs
+  // ============================
+  const inputs = dialog.locator('input');
+
+  for (let i = 0; i < await inputs.count(); i++) {
+    const input = inputs.nth(i);
+
+    try {
+      const value = await input.inputValue();
+
+      if (!value || value === '0.000') {
+        await input.fill('8');
+      }
+    } catch {}
+  }
+
+  // ============================
+  // 6️⃣ Save
+  // ============================
+  const saveBtn = dialog.getByRole('button', { name: /save/i });
+
+  await expect(saveBtn).toBeEnabled({ timeout: 15000 });
+  await saveBtn.click();
+
+  console.log('✅ Pay Rates fully added');
+}
+/*
+
+
+async addPayRates() {
+  console.log('--- Adding Pay Rates');
+
+  await this.payRatesTab.click();
+  await this.addNewEntryRowBtn.click();
+
+  // ✅ Scope everything to dialog
+  const dialog = this.page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+ // ============================
+  // 1️⃣ Select Label
+  // ============================
+  const labelDropdown = dialog.getByRole('button', { name: /select/i }).first();
+  await labelDropdown.click();
+
+  const labelListbox = this.page.getByRole('listbox');
+  await expect(labelListbox).toBeVisible();
+
+  const labelOptions = labelListbox.getByRole('option');
+  const labelOptionCount = await labelOptions.count();
+
+  for (let i = 0; i < labelOptionCount; i++) {
+    const labelOption = labelOptions.nth(i);
+    const isDisabled = await labelOption.getAttribute('aria-disabled');
+
+    if (isDisabled !== 'true') {
+      await labelOption.click();
+      break;
+    }
+  }
+
+  // ✅ Handle Full Time checkbox (VERY IMPORTANT)
+const fullTimeCheckbox = dialog.getByRole('checkbox', { name: /full time/i });
+
+if (await fullTimeCheckbox.isVisible()) {
+  const isChecked = await fullTimeCheckbox.isChecked();
+
+  if (!isChecked) {
+    await fullTimeCheckbox.check();
+  }
+}
+  // ============================
+// 2️⃣ Select Type (FINAL STABLE FIX)
+// ============================
+
+// ✅ Scope ONLY inside dialog
+const typeDropdown = dialog.locator('button:has-text("Select")').nth(1);
+
+await expect(typeDropdown).toBeVisible({ timeout: 15000 });
+await typeDropdown.click();
+
+await expect(typeDropdown).toBeVisible({ timeout: 10000 });
+
+// ✅ Prevent double-trigger by forcing single click
+await typeDropdown.click({ trial: true }); // check only
+await typeDropdown.click(); // actual click
+
+// ✅ Wait for listbox (strict scope)
+const listbox = this.page.getByRole('listbox');
+await expect(listbox).toBeVisible();
+
+// ✅ Get options ONLY once
+const typeOptions = listbox.getByRole('option');
+
+const typeOptionCount = await typeOptions.count();
+
+for (let i = 0; i < typeOptionCount; i++) {
+  const opt = typeOptions.nth(i);
+  const disabled = await opt.getAttribute('aria-disabled');
+
+  if (disabled !== 'true') {
+    await opt.click();
+    break;
+  }
+}
+
+// ✅ EXTRA SAFETY: ensure dropdown closed (prevents double select illusion)
+await expect(listbox).toBeHidden({ timeout: 5000 });
+
+
+// ============================
+// 3️⃣ Fill Dates (FINAL FIX)
+// ============================
+
+const dateInputs = dialog.locator('input[placeholder="mm/dd/yyyy"]');
+
+const effectiveDateInput = dateInputs.first();
+
+await effectiveDateInput.waitFor({ state: 'visible', timeout: 10000 });
+
+await effectiveDateInput.click();
+await this.page.keyboard.type('04/01/2026');
+await this.page.keyboard.press('Tab'); // 🔥 REQUIRED
+
+// ✅ Expiry Date
+const expiryDateInput = dateInputs.nth(1);
+
+await expiryDateInput.click();
+await this.page.keyboard.type('12/31/2026');
+await this.page.keyboard.press('Tab');
+
+
+// ============================
+// 4️⃣ Fill Cash + Non-Cash
+// ============================
+
+const modalInputs = dialog.locator('input');
+
+const modalInputCount = await modalInputs.count();
+console.log(`--- Found ${modalInputCount} inputs in modal`);
+
+for (let i = 0; i < modalInputCount; i++) {
+  const modalInput = modalInputs.nth(i);
+
+  try {
+    const value = await modalInput.inputValue();
+
+    if (!value || value === '0.000') {
+      await modalInput.fill('8');
+    }
+  } catch {
+    // ignore non-editable fields
+  }
+}
+
+
+// ============================
+// 5️⃣ Save
+// ============================
+
+const saveBtn = dialog.getByRole('button', { name: /save/i });
+
+await expect(saveBtn).toBeEnabled({ timeout: 10000 });
+await saveBtn.click();
+
+console.log('✅ Pay Rates fully added');
+
+}
+ */
 
   //=============================================================================================================
 
@@ -95,7 +403,7 @@ export class AddEmployeePage {
     await expect(listbox).toBeVisible(); // better than waitFor()
 
     await listbox.getByRole('option', { name: value,exact: true }).click();
-    await this.page.pause();
+    //await this.page.pause();
 }
 
 //================================================================================================================
@@ -104,7 +412,7 @@ export class AddEmployeePage {
     await this.ethnicityDropdown.click();
     await this.page.getByRole('listbox').waitFor();
     await this.page.getByRole('option', { name: value }).click();
-    await this.page.pause();
+   // await this.page.pause();
 }
 
 //=================================================================================================================
@@ -188,22 +496,7 @@ async selectCountryDropdown(country: string) {
   await this.page.keyboard.press('Tab'); // 🔥 VERY IMPORTANT
 }
 
-/*async selectCountryDropdown(country: string) {
-  // ✅ Find by label instead of ID
-  const dropdown = this.page.getByLabel('Country');
 
-  await dropdown.scrollIntoViewIfNeeded();
-  await dropdown.waitFor({ state: 'visible' });
-
-  await dropdown.click();
-
-  // ✅ Select option
-  const option = this.page.getByRole('option', { name: country });
-  await option.waitFor({ state: 'visible' });
-
-  await option.click();
-  await this.page.keyboard.press('Tab'); // 🔥 critical
-}*/
 
 
 //===========================================================================================================
@@ -212,38 +505,22 @@ async fillDate( date: string) {
 }
 
 //============================================================================================================
+
 async clickSave() {
-     await this.saveButton.click({ force: true });
+  const saveButton = this.page.locator('button:has-text("Save")');
 
-  // ✅ Wait for URL change OR allow fallback
-  try {
-    await expect(this.page).toHaveURL(/employee\/(?!0+$)[a-zA-Z0-9]+/, {
-      timeout: 120000
-    });
-    console.log('✅ Real employee saved');
-  } catch {
-    console.log('⚠️ Still in draft (000000)');
-  }
-  
-  
+  await saveButton.waitFor({ state: 'visible', timeout: 60000 });
+  await saveButton.click();
 
-  // ✅ Try to read toast (if exists)
-  const toast = this.page.locator('.MuiAlert-message');
-  if (await toast.isVisible().catch(() => false)) {
-    const message = await toast.textContent();
-    console.log('Toast message:', message);
-
-    await expect(toast).toContainText(/saved|success/i);
-  } else {
-    console.log('⚠️ Toast not visible — continuing (handled)');
-  }
- 
+  console.log('✅ Save clicked');
 }
+
 
 //============================================================================================================
 
 async deleteEmployee() {
   await expect(this.deleteButton).toBeVisible({ timeout: 10000 });
+  //await this.page.pause();
   await this.deleteButton.click();  
 
   // Optional: verify title
@@ -266,69 +543,20 @@ async deleteEmployee() {
 
 
 
-//=========================================================================================================
-
-/*async searchAndOpenEmployee(firstName: string) {
-
-  // ✅ Ensure table exists first
-  //await this.page.waitForSelector('.ReactTable', { timeout: 20000 });
-  await this.page.pause();
-
-  // 🔥 FORCE FOCUS (this is the fix)
-  await this.searchInput.scrollIntoViewIfNeeded();
-  await this.searchInput.click({ force: true });
-
-   // 🔥 Clear properly
-  await this.page.keyboard.press('Control+A');
-  await this.page.keyboard.press('Backspace');
-
-   // 🔥 Type now (this will actually go into input)
-  await this.searchInput.type(firstName, { delay: 100 });
-
-  await this.page.waitForSelector('.ReactTable', { timeout: 20000 });
-
-  let pageFound = false;
-
-  while (true) {
-
-    const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
-    const count = await rows.count();
-
-    console.log('Checking rows on page:', count);
-
-    for (let i = 0; i < count; i++) {
-      const row = rows.nth(i);
-      const text = await row.textContent();
-
-      if (text?.includes(firstName)) {
-        console.log('✅ Found employee');
-
-        await row.locator('a').click();
-        return;
-      }
-    }
-
-    // 👉 Try next page
-    const nextBtn = this.page.locator('button:has-text("Next")');
-
-    if (await nextBtn.isDisabled()) {
-      break; // no more pages
-    }
-
-    await nextBtn.click();
-    await this.page.waitForTimeout(2000);
-  }
-
-  throw new Error(`❌ Employee ${firstName} not found in any page`);
-}
-*/
 //==============================================================================================================
+
 async searchAndOpenEmployee(firstName: string) {
-   console.log('Searching for:', firstName);
+  console.log('Searching for:', firstName);
+
+  // ✅ Type into search (VERY IMPORTANT)
+  await this.searchInput.fill(firstName);
+
+  // small delay for table filtering
+  await this.page.waitForTimeout(2000);
 
   const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
 
-  // 🔥 WAIT until employee appears (retry logic)
+  // 🔥 Retry with refresh logic
   await expect(async () => {
     const count = await rows.count();
 
@@ -337,17 +565,21 @@ async searchAndOpenEmployee(firstName: string) {
       if (text?.includes(firstName)) return;
     }
 
-    throw new Error('Not found yet');
-  }).toPass({ timeout: 20000 });
+    // 🔥 trigger refresh again
+    await this.searchInput.fill('');
+    await this.searchInput.fill(firstName);
+    await this.page.waitForTimeout(2000);
 
-  // ✅ Now safely click
+    throw new Error('Not found yet');
+  }).toPass({ timeout: 30000 });
+
+  // ✅ Click employee
   const employeeRow = this.page.locator(
     `.ReactTable .rt-tr-group:has-text("${firstName}")`
   );
 
   await employeeRow.first().locator('a').click();
-  
-
 }
-//==============================================================================================================
+
+
 }

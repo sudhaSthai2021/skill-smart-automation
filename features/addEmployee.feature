@@ -1,3 +1,4 @@
+@smoke @employee
 
 @smoke @employee
 
@@ -7,9 +8,18 @@ Feature: Add Employee Flow
   Scenario: Add, search and delete employee
     Given I login to the application
     And I navigate to Add Employee page
+
     When I create a new employee
     And I fill employee details
+
     And I add address details
-    And I save the employee
+    And I save address details
+
+    And I fill work info
+    And I save work info
+
+    And I add pay rates
+   
+
     Then I should be able to search the employee
     And I delete the employee

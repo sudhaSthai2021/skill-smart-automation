@@ -29,7 +29,7 @@ export class CustomWorld {
 
 
   async init() {
-    this.browser = await chromium.launch({ headless: false });
+    this.browser = await chromium.launch({ headless: false, slowMo: 1000 });
     const context = await this.browser.newContext();
     this.page = await context.newPage();
 

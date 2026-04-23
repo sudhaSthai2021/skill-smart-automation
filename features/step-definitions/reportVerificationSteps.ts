@@ -85,9 +85,12 @@ When('I extract payroll standard data for the current period', async function (t
   if (!this.payrollData.length) {
     throw new Error('❌ No payroll data extracted');
   }
+   else {
+  console.log('No of rows:', this.payrollData.length);
+  }
 
   // ✅ Pass to ReportsPage (IMPORTANT)
-  this.reports.setPayrollData(this.payrollData);
+  //this.reports.setPayrollData(this.payrollData);
 
   console.log('✅ Payroll data ready');
 });
@@ -112,7 +115,8 @@ When('I generate all available reports', async function (this: CustomWorld) {
   if (!this.startDate || !this.endDate) {
     throw new Error('❌ Dates missing before report generation');
   }
-  await this.reports.generateAllReports(this.startDate, this.endDate);
+
+  await this.reports.generateAllReports(this.startDate, this.endDate,this.payrollData);
 });
 // ======================================================
 // ✅ FINAL ASSERTION STEP (OPTIONAL / LIGHT)

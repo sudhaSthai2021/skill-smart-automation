@@ -197,8 +197,15 @@ async extractStandardPayrollData(): Promise<PayrollRow[]> {
     const row = rows.nth(i);
     const cells = row.locator('.rt-td');
 
+   
+
     const cellCount = await cells.count();
-    if (cellCount === 0) continue;
+
+// ✅ ADD THIS (debug + safety)
+console.log(`Row ${i} column count:`, cellCount);
+
+
+if (cellCount === 0) continue;
 
     const getText = async (index: number) =>
       (await cells.nth(index).innerText()).trim();
@@ -217,18 +224,21 @@ async extractStandardPayrollData(): Promise<PayrollRow[]> {
     const cleanNumber = (val: string) =>
       parseFloat(val.replace(/[$,]/g, '').trim()) || 0;
 
-    const rowData: PayrollRow = {
-      fullName: rawName,
-      employeeFirst: firstName || '',
-      employeeLast: lastName || '',
-      workClass: await getText(3),
-      jobLevel: await getText(4),
-      hours: cleanNumber(await getText(6)),
-      otHours: cleanNumber(await getText(7)),
-      dtHours: cleanNumber(await getText(8)),
-      grossWages: cleanNumber(await getText(9)),
-      netWages: cleanNumber(await getText(10)),
-    };
+
+const rowData: PayrollRow = {
+  fullName: rawName,                     // Name → index 1
+  employeeFirst: firstName || '',
+  employeeLast: lastName || '',
+  workClass: await getText(2),           // ✅ FIXED
+  jobLevel: await getText(3),            // ✅ FIXED
+  hours: cleanNumber(await getText(5)),  // ✅ FIXED
+  otHours: cleanNumber(await getText(6)),
+  dtHours: cleanNumber(await getText(7)),
+  grossWages: cleanNumber(await getText(10)), // ✅ FIXED
+  netWages: cleanNumber(await getText(11)),   // ✅ FIXED
+};
+
+
 
     data.push(rowData);
   }
@@ -244,71 +254,5 @@ async extractStandardPayrollData(): Promise<PayrollRow[]> {
 }
 
 
-/*
-  async extractStandardPayrollData(): Promise<PayrollRow[]> {
-    console.log('--- Extracting ALL rows from ReactTable...');
-
-  // ✅ Wait for REAL data
-  await this.page.waitForSelector(
-    '.ReactTable .rt-tbody .rt-tr >> text=/[A-Za-z]/',
-    { timeout: 30000 }
-  );
-
-  // ✅ Debug pause (use only when needed)
-  console.log('📸 Taking screenshot before extraction...');
-  await this.page.screenshot({ path: 'payroll-before-extract.png', fullPage: true });
-
-  // Optional manual pause
-    await this.page.pause();
-
-    // ❌ REMOVE TYPE HERE
-    const rawData = await this.page.evaluate(() => {
-      const rows = Array.from(document.querySelectorAll('.ReactTable .rt-tbody .rt-tr'));
-
-      const cleanNumber = (val: string) =>
-        parseFloat(val.replace(/[$,]/g, '').trim()) || 0;
-
-      return rows.map(row => {
-        const cells = Array.from(row.querySelectorAll('.rt-td'));
-        if (cells.length === 0) return null;
-
-        const get = (i: number) => cells[i]?.textContent?.trim() || '';
-
-        const rawName = get(1).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-        if (!rawName || rawName.includes('Select') || rawName.includes('Loading')) {
-          return null;
-        }
-
-        const [lastName, firstName] = rawName.split(',').map(s => s?.trim());
-
-        return {
-          fullName: rawName,
-          employeeFirst: firstName || '',
-          employeeLast: lastName || '',
-          workClass: get(2),
-          jobLevel: get(3),
-          hours: cleanNumber(get(5)),
-          otHours: cleanNumber(get(6)),
-          dtHours: cleanNumber(get(7)),
-          grossWages: cleanNumber(get(10)),
-          netWages: cleanNumber(get(11)),
-        };
-      }).filter(row => row !== null);
-    });
-
-    // ✅ APPLY TYPE HERE (safe)
-    const data = rawData as PayrollRow[];
-
-    console.log('--- Extracted rows count:', data.length);
-    console.log('--- Clean Data:', data);
-
-    if (data.length === 0) {
-      throw new Error('❌ No valid payroll rows found.');
-    }
-
-    return data;
-  }
-*/
 
 }
