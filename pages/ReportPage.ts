@@ -5,6 +5,7 @@ import AdmZip from 'adm-zip';
 import XLSX from 'xlsx';
 import pdfParse from 'pdf-parse';
 import { expect } from '@playwright/test';
+import { DropdownUtils } from '../utils/dropdownUtils';
 
 
 export interface PayrollRow {
@@ -90,46 +91,20 @@ export class ReportsPage {
 
 //=============================================================================================================================================
  
-
- private async selectReport(reportName: string) {
+private async selectReport(reportName: string) {
   console.log('--- Selecting report:', reportName);
 
-  // ✅ Step 1: open dropdown
   const dropdown = this.page.locator('label:has-text("Select Report")')
-    .locator('..')
-    .locator('div[role="button"]');
+  .locator('..')
+  .locator('div[role="button"]');
 
-  await dropdown.click();
+const menu = this.page.locator('#menu-selectedReport');
 
-  // ✅ Step 2: wait for MUI menu container
-  const menu = this.page.locator('#menu-selectedReport');
-  await menu.waitFor({ state: 'visible', timeout: 10000 });
-
-  // ✅ Step 3: get ALL options inside menu
-  const options = menu.locator('li');
-
-  const count = await options.count();
-  console.log(`--- Found ${count} reports`);
-
-  let found = false;
-
-  for (let i = 0; i < count; i++) {
-    const text = (await options.nth(i).innerText()).trim();
-
-    if (text === reportName) {
-      console.log('--- Match found:', text);
-      await options.nth(i).click();
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    throw new Error(`❌ Report not found: ${reportName}`);
-  }
+await DropdownUtils.select(dropdown, reportName);
 
   console.log('--- Report selected successfully');
 }
+
 
 //===================================================================================================================================
 
@@ -184,8 +159,7 @@ async handleDateRange(config: {
         hasText: 'Project'
       });
 
-      await dropdown.click();
-      await this.page.locator(`li:has-text("${config.project}")`).click();
+      await DropdownUtils.select(dropdown, config.project);
     }
   }
 

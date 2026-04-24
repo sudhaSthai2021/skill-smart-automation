@@ -2,3 +2,6 @@ node_modules/
 downloads/
 playwright-report/
 test-results/
+reports/
+*.html
+*.json
