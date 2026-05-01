@@ -124,23 +124,61 @@ async navigateToReporting() {
 async selectProject(projectName: string) {
   console.log('--- Selecting project:', projectName);
 
-  await this.page.waitForURL('**/project/select', { timeout: 30000 });
+  const url = this.page.url();
+  console.log('--- Current URL:', url);
 
-  const projectTitle = this.page.locator('p', { hasText: projectName }).first();
-  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+  // ======================================================
+  // ✅ CASE 1: PROJECT CARD PAGE
+  // ======================================================
+  if (url.includes('/project/select')) {
 
-  const projectCard = projectTitle.locator(
-    'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
-  );
+    console.log('--- Project selection page detected');
 
-  await projectCard.scrollIntoViewIfNeeded();
-  await projectCard.locator('button:has-text("Select")').click();
+    const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+    await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
 
-  await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+    const projectCard = projectTitle.locator(
+      'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
+    );
 
-  console.log('--- Project selected successfully');
+    await projectCard.scrollIntoViewIfNeeded();
+    await projectCard.locator('button:has-text("Select")').click();
+
+    await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+    console.log('--- Project selected via card');
+    return;
+  }
+
+  // ======================================================
+  // ✅ CASE 2: ALREADY IN DASHBOARD (ADMIN / RETURN FLOW)
+  // ======================================================
+  console.log('--- Trying project dropdown');
+
+  const dropdown = this.page.locator('div[role="button"]').filter({
+    hasText: 'Project'
+  });
+
+  if (await dropdown.count() > 0) {
+
+    await dropdown.first().click();
+
+    const option = this.page.locator('li').filter({
+      hasText: projectName
+    });
+
+    await option.first().waitFor({ state: 'visible', timeout: 10000 });
+    await option.first().click();
+
+    console.log('--- Project selected via dropdown');
+    return;
+  }
+
+  // ======================================================
+  // ❌ FAIL SAFE
+  // ======================================================
+  throw new Error(`❌ Could not find project selection UI for: ${projectName}`);
 }
-
 /*
 
 async selectProject(projectName: string) {

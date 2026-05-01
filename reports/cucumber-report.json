@@ -4,121 +4,147 @@
     "elements": [
       {
         "description": "",
-        "id": "add-employee-flow;add,-search-and-delete-employee",
+        "id": "add-1099-worker-flow;add,-search-and-delete-1099-worker",
         "keyword": "Scenario",
-        "line": 7,
-        "name": "Add, search and delete employee",
+        "line": 5,
+        "name": "Add, search and delete 1099 worker",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 334260399
+              "duration": 651437300
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 8,
-            "name": "I login to the application",
+            "line": 6,
+            "name": "I login as subcontractor for 1099",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:11"
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:10"
             },
             "result": {
               "status": "passed",
-              "duration": 7289301199
+              "duration": 11498602399
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 9,
-            "name": "I navigate to Add Employee page",
+            "line": 7,
+            "name": "I select project",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:23"
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:27"
             },
             "result": {
               "status": "passed",
-              "duration": 41622100
+              "duration": 1676735200
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 10,
-            "name": "I create a new employee",
+            "line": 9,
+            "name": "I navigate to Add 1099 Worker page",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:33"
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:44"
             },
             "result": {
               "status": "passed",
-              "duration": 942628699
+              "duration": 3366277799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "I create 1099 worker",
+            "match": {
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:56"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14486464100
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
             "line": 11,
-            "name": "I fill employee details",
+            "name": "I save the worker",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:40"
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:77"
             },
             "result": {
               "status": "passed",
-              "duration": 6220381699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 12,
-            "name": "I add address details",
-            "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1053967300
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 13,
-            "name": "I save the employee",
-            "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:62"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 3114203499
+              "duration": 1752210399
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 14,
-            "name": "I should be able to search the employee",
+            "line": 13,
+            "name": "I should find the worker in list",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:83"
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:96"
             },
             "result": {
               "status": "passed",
-              "duration": 1597221799
+              "duration": 2661261100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "I logout",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:180"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2540971399
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 15,
-            "name": "I delete the employee",
+            "line": 16,
+            "name": "I login as admin",
             "match": {
-              "location": "features\\step-definitions\\addEmployeeSteps.ts:99"
+              "location": "features\\step-definitions\\importPayrollSteps.ts:183"
             },
             "result": {
               "status": "passed",
-              "duration": 7450448399
+              "duration": 8390045500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "I navigate to the \"DEFAULT_PROJECT\"",
+            "match": {
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:24"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1864046999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 18,
+            "name": "I navigate to View All 1099 Workers",
+            "match": {
+              "location": "features\\step-definitions\\add1099WorkerStep.ts:125"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3306465199
             }
           },
           {
@@ -126,42 +152,578 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 469822200
+              "duration": 27467600
             }
           }
         ],
         "tags": [
           {
             "name": "@smoke",
-            "line": 2
+            "line": 1
+          },
+          {
+            "name": "@1099",
+            "line": 1
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "add-1099-worker-flow",
+    "line": 3,
+    "keyword": "Feature",
+    "name": "Add 1099 Worker Flow",
+    "tags": [
+      {
+        "name": "@smoke",
+        "line": 1
+      },
+      {
+        "name": "@1099",
+        "line": 1
+      }
+    ],
+    "uri": "features\\add1099Worker.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "add-employee-flow;add,-search-and-delete-employee",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Add, search and delete employee",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 705328000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "I login to the application",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:11"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14843106499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "I navigate to Add Employee page",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:23"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 824237000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I create a new employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:33"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5010310899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I fill employee details",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:40"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3457592300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I add address details",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:48"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 8426756099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I save address details",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 873252999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "I fill work info",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:66"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2528509400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "I save work info",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:71"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 855199299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "I add pay rates",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29578941200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "I should be able to search the employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:87"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7670619900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "I delete the employee",
+            "match": {
+              "location": "features\\step-definitions\\addEmployeeSteps.ts:107"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1713054399
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30350200
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@smoke",
+            "line": 1
           },
           {
             "name": "@employee",
-            "line": 2
+            "line": 1
+          },
+          {
+            "name": "@smoke",
+            "line": 3
+          },
+          {
+            "name": "@employee",
+            "line": 3
           },
           {
             "name": "@add_search_delete",
-            "line": 6
+            "line": 7
           }
         ],
         "type": "scenario"
       }
     ],
     "id": "add-employee-flow",
-    "line": 4,
+    "line": 5,
     "keyword": "Feature",
     "name": "Add Employee Flow",
     "tags": [
       {
         "name": "@smoke",
-        "line": 2
+        "line": 1
       },
       {
         "name": "@employee",
-        "line": 2
+        "line": 1
+      },
+      {
+        "name": "@smoke",
+        "line": 3
+      },
+      {
+        "name": "@employee",
+        "line": 3
       }
     ],
     "uri": "features\\addEmployee.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "import-payroll;create-excel-layout-and-import-payroll-successfully",
+        "keyword": "Scenario",
+        "line": 4,
+        "name": "Create Excel layout and import payroll successfully",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 669332199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 6,
+            "name": "I login as subcontractor",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 25227731300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "I select the project",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:28"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1709884099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I navigate to Labor Tracking -> Payroll -> Import Payroll",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4240935999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I create a new payroll layout with name \"AutoLayout1234\"",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:84"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 6357216400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I configure column mapping from A to U",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:88"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 89418170500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I save the layout",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:94"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2867512900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I select the layout \"AutoLayout1234\"",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:98"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1788626500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I download the template",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:102"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 850065499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "I upload the payroll file \"payroll.xlsx\"",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:106"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 822426600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "I test import",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:110"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 864322899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 21,
+            "name": "I should not see any validation errors",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:118"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3012800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "I import the payroll",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:128"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 846953600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "I navigate to Labor Tracking -> Payroll -> View All Payrolls",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:133"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 951519599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "I select the latest payroll report period",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:141"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1725842300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 27,
+            "name": "I should see the imported payroll in the list",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:148"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5128100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 28,
+            "name": "I extract organization and payroll period for the imported payroll",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:152"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 11552700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 30,
+            "name": "I logout",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:180"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2280192999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 31,
+            "name": "I login as admin",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:183"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7896705000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 32,
+            "name": "I select the project",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:28"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1745493600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 34,
+            "name": "I navigate to Labor Tracking -> Payroll -> View All Payrolls",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:133"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3700097200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 35,
+            "name": "I delete the payroll using extracted data",
+            "match": {
+              "location": "features\\step-definitions\\importPayrollSteps.ts:193"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1918590599
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27038000
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@import_payroll",
+            "line": 1
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "import-payroll",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Import Payroll",
+    "tags": [
+      {
+        "name": "@import_payroll",
+        "line": 1
+      }
+    ],
+    "uri": "features\\importPayroll.feature"
   },
   {
     "description": "",
@@ -178,7 +740,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 283691000
+              "duration": 675477500
             }
           },
           {
@@ -191,7 +753,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2825321199
+              "duration": 7335825400
             }
           },
           {
@@ -204,7 +766,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 22201070999
+              "duration": 12087058099
             }
           },
           {
@@ -217,7 +779,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 372366800
+              "duration": 1686049700
             }
           },
           {
@@ -226,11 +788,11 @@
             "line": 12,
             "name": "I go to Labor Tracking -> Payroll -> View All Payrolls",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:92"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:52"
             },
             "result": {
               "status": "passed",
-              "duration": 10993337799
+              "duration": 4676262499
             }
           },
           {
@@ -239,11 +801,11 @@
             "line": 13,
             "name": "I extract payroll standard data for the current period",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:97"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:60"
             },
             "result": {
               "status": "passed",
-              "duration": 41596799
+              "duration": 104181900
             }
           },
           {
@@ -252,11 +814,11 @@
             "line": 14,
             "name": "I log out of the application",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:122"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:98"
             },
             "result": {
               "status": "passed",
-              "duration": 1053047500
+              "duration": 2031731900
             }
           },
           {
@@ -269,7 +831,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 10775541599
+              "duration": 9472032500
             }
           },
           {
@@ -282,7 +844,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 392815400
+              "duration": 1696018799
             }
           },
           {
@@ -291,11 +853,11 @@
             "line": 19,
             "name": "I go to Reporting -> Reports and Downloads -> Generate/View Reports",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:132"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:108"
             },
             "result": {
               "status": "passed",
-              "duration": 2208091200
+              "duration": 3255309700
             }
           },
           {
@@ -304,11 +866,11 @@
             "line": 23,
             "name": "I generate all available reports",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:191"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:113"
             },
             "result": {
               "status": "passed",
-              "duration": 107024162400
+              "duration": 165249648199
             }
           },
           {
@@ -317,11 +879,11 @@
             "line": 25,
             "name": "the report should match payroll data",
             "match": {
-              "location": "features\\step-definitions\\reportVerificationSteps.ts:198"
+              "location": "features\\step-definitions\\reportVerificationSteps.ts:125"
             },
             "result": {
               "status": "passed",
-              "duration": 185200
+              "duration": 137300
             }
           },
           {
@@ -329,7 +891,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 376465900
+              "duration": 38245200
             }
           }
         ],

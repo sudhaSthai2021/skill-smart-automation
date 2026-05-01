@@ -24,6 +24,10 @@ export class LaborTrackingPage {
   readonly viewAllPayrolls: Locator;
   readonly payrollPeriodDropdown: Locator;
   readonly payrollPeriodMenuItem: Locator;
+  readonly workerMenu: Locator;
+  readonly viewAllWorkers: Locator;
+  readonly addWorkerMenu:Locator;
+  readonly workerTab:Locator;
 
 
 
@@ -35,11 +39,139 @@ export class LaborTrackingPage {
     this.viewAllPayrolls = page.getByText('View All Payrolls');
     this.payrollPeriodDropdown = page.locator('label:has-text("Payroll report period") + div [id^="mui-component-select-"], [id^="mui-component-select-selectedPayrollId"]').first();
     this.payrollPeriodMenuItem = page.locator('#menu-selectedPayrollId');
+    this.workerMenu = page.locator('#right-side').getByText('1099 Workers', { exact: true })
+    this.workerTab =  page.locator('p:has-text("1099 Workers")').first();
+    this.viewAllWorkers = page.getByText('View All 1099 Workers', { exact: true });
 
+    this.addWorkerMenu = page.locator('div:has-text("Add 1099 Worker")').first();
 
   }
 
   //=======================================================================================================
+
+  async navigateToAllPayrolls() {
+  console.log('--- Navigating to All Payrolls...');
+
+  // Wait for sidebar
+  await this.page.waitForSelector('text=Labor Tracking', { timeout: 20000 });
+
+  // 🔥 Ensure menu is expanded (NOT blindly clicking)
+  const isVisible = await this.viewAllPayrolls.isVisible().catch(() => false);
+
+  if (!isVisible) {
+    console.log('--- Expanding Labor Tracking menu');
+    await this.laborTrackingMenu.click();
+  } else {
+    console.log('--- Menu already expanded');
+  }
+
+  // 🔥 Wait again after click
+  await this.viewAllPayrolls.waitFor({ state: 'visible', timeout: 20000 });
+
+  // Click View All Payrolls
+  await this.viewAllPayrolls.click();
+
+  // 🔥 VERY IMPORTANT: wait for page load
+  await this.page.waitForURL(/payroll\/all/);
+
+  console.log('--- Clicked View All Payrolls');
+}
+async deletePayroll(org: string, start: string, end: string) {
+  console.log('--- Deleting payroll:', org, start, end);
+
+  await this.page.waitForSelector('.ReactTable .rt-tr-group', { timeout: 20000 });
+
+  const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+  const count = await rows.count();
+
+  // ✅ normalize ONLY for matching (NOT UI value)
+ const normalize = (val: string) =>
+  val
+    .toLowerCase()
+    .replace(/signed/g, '')      // remove SIGNED badge
+    .replace(/[^a-z0-9]/g, '')   // remove all symbols
+    .trim();
+
+  const orgNorm = normalize(org);
+
+
+
+  const normalizeDate = (val: string = '') =>
+  val
+    .toLowerCase()
+    .replace(/signed/g, '')
+    .replace(/[^0-9/]/g, '')   // keep only date characters
+    .trim();
+
+const startNorm = normalizeDate(start);
+const endNorm = normalizeDate(end);
+  for (let i = 0; i < count; i++) {
+    const row = rows.nth(i);
+    const cells = row.locator('.rt-td');
+
+    const cellCount = await cells.count();
+    if (cellCount < 3) continue;
+
+    // ✅ safer column reads (based on your logs)
+    const orgTextRaw = await cells.nth(2).innerText();
+    const startText = normalizeDate(await cells.nth(5).innerText());
+const endText = normalizeDate(await cells.nth(6).innerText());
+
+    const orgTextNorm = normalize(orgTextRaw);
+
+    console.log(`--- Row ${i}:`, {
+      orgTextRaw,
+      orgTextNorm,
+      startText,
+      endText
+    });
+
+    console.log('CHECKING MATCH:', {
+  orgTextNorm,
+  orgNorm,
+  startText,
+  startNorm,
+  endText,
+  endNorm
+});
+   const isMatch =
+  orgTextNorm === orgNorm &&
+  startText === startNorm &&
+  endText === endNorm;
+
+if (isMatch) {
+       console.log('--- Org comparison ---');
+
+console.log(`orgTextNorm = ${orgTextNorm}`);
+console.log(`orgNorm     = ${orgNorm}`);
+
+console.log(`startText   = ${startText}`);
+console.log(`startNorm   = ${startNorm}`);
+
+console.log(`endText     = ${endText}`);
+console.log(`endNorm     = ${endNorm}`);
+
+console.log('Please see there are the same');
+
+      const deleteBtn = row.locator('[data-ga-id="gmt_payrollV2_delete_payroll"]');
+
+      await deleteBtn.waitFor({ state: 'visible', timeout: 10000 });
+      await deleteBtn.click();
+      const dialog = this.page.locator('div[role="dialog"]');
+
+      await expect(dialog).toBeVisible();
+
+const yesBtn = dialog.locator('button:has-text("Yes")');
+await yesBtn.click();
+
+      console.log('--- Payroll deleted ✅');
+      return;
+    }
+  }
+
+  throw new Error('❌ Payroll not found for deletion');
+}
+/*
 
   async navigateToAllPayrolls() {
     console.log('--- Navigating to All Payrolls...');
@@ -60,6 +192,27 @@ export class LaborTrackingPage {
     console.log('--- Clicked View All Payrolls');
   }
 
+  */
+ //====================================================================================================
+ async goToImportPayroll() {
+  console.log('--- Navigating to Import Payroll');
+
+  // 1️⃣ Open Labor Tracking
+  await this.page.getByText('Labor Tracking', { exact: true }).click();
+
+  // 2️⃣ Wait for Import Payroll to appear
+  const importPayroll = this.page.getByRole('link', { name: 'Import Payroll' });
+
+  await importPayroll.waitFor({ state: 'visible', timeout: 10000 });
+
+  // 3️⃣ Click it
+  await importPayroll.click();
+
+  // 4️⃣ Wait for navigation
+  await this.page.waitForURL(/payroll\/import/);
+
+  console.log('--- Navigation complete');
+}
   //=====================================================================================================
 
   async getSelectedPayrollDates(): Promise<{ startDate: string; endDate: string }> {
@@ -252,6 +405,97 @@ const rowData: PayrollRow = {
 
   return data;
 }
+
+async verifyPayrollCreated(expectedPeriod?: string) {
+  console.log('--- Verifying payroll exists in table');
+
+  const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+
+  await rows.first().waitFor({ state: 'visible', timeout: 30000 });
+
+  const count = await rows.count();
+  console.log('--- Row count:', count);
+
+  if (count === 0) {
+    throw new Error('❌ No payroll records found');
+  }
+
+  // OPTIONAL: Validate period text if you captured it
+  if (expectedPeriod) {
+    const dropdownText = await this.page
+      .locator('#mui-component-select-selectedPayrollId')
+      .innerText();
+
+    if (!dropdownText.includes(expectedPeriod)) {
+      throw new Error(`❌ Expected payroll period ${expectedPeriod} not found`);
+    }
+  }
+
+  console.log('✅ Payroll successfully created and visible');
+}
+
+//============================================================================================================
+
+//====================================================================================================
+//====================================================================================================
+async goToAdd1099Worker() {
+  const page = this.page;
+
+  // 1. Click 1099 Workers (expands submenu)
+  const workers = page.getByText('1099 Workers', { exact: true });
+  await workers.waitFor({ state: 'visible', timeout: 30000 });
+  await workers.click();
+
+  // 2. Wait for submenu animation/render
+  const addWorker = page.getByText('Add 1099 Worker', { exact: true });
+  await addWorker.waitFor({ state: 'visible', timeout: 30000 });
+
+  // 3. Ensure it is clickable
+  await addWorker.scrollIntoViewIfNeeded();
+  await addWorker.click();
+}
+
+
+//====================================================================================================
+ async goToView1099Workers() {
+ console.log('--- Navigating to 1099 Workers list');
+
+  // 1️⃣ Click main menu (1099 Workers)
+  await this.workerMenu.click();
+
+  // 2️⃣ Click submenu (View All 1099 Workers)
+  await this.viewAllWorkers.waitFor({ state: 'visible', timeout: 10000 });
+  await this.viewAllWorkers.click();
+
+  // 3️⃣ Validate page
+  // 3️⃣ Validate page
+ await expect(
+  this.page.getByText('Contracted With')
+).toBeVisible();
+  console.log('--- Workers list opened');
+}
+
+ async goToWorkerTab() {
+ console.log('--- Navigating to 1099 Workers Tab list');
+
+  // 1️⃣ Click main menu (1099 Workers)
+  
+
+  // 2️⃣ Click submenu (View All 1099 Workers)
+  await this.workerTab.waitFor({ state: 'visible', timeout: 10000 });
+  await this.workerTab.click();
+  
+
+  // 3️⃣ Validate page
+ await expect(
+  this.page.getByText('Contracted With')
+).toBeVisible();
+
+  console.log('--- Workers list opened');
+}
+
+
+
 
 
 
