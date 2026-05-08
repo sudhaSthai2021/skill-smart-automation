@@ -1,5 +1,5 @@
 @import_payroll
-Feature: Import Payroll
+Feature: Import, Assert,Delete Payroll
 
 Scenario: Create Excel layout and import payroll successfully
 
@@ -22,7 +22,7 @@ Scenario: Create Excel layout and import payroll successfully
   And I import the payroll
 
   And I navigate to Labor Tracking -> Payroll -> View All Payrolls
-  And I select the latest payroll report period
+  And I select the imported payroll report period
 
   Then I should see the imported payroll in the list
   And I extract organization and payroll period for the imported payroll

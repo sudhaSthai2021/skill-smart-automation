@@ -10,7 +10,7 @@ let browser: Browser;
 BeforeAll(async function () {
   browser = await chromium.launch({
     headless: false,
-    slowMo: 800, // ✅ reduce from 1000 → faster & more stable
+    //slowMo: 800, // ✅ reduce from 1000 → faster & more stable
   });
 });
 

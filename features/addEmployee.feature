@@ -1,8 +1,8 @@
-@smoke @employee
+
 
 @smoke @employee
 
-Feature: Add Employee Flow
+Feature: Add, Assert,Delete Employee Flow
   
   @add_search_delete
   Scenario: Add, search and delete employee

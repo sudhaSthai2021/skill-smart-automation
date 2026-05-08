@@ -110,14 +110,23 @@ When(/^I go to Reporting -> Reports and Downloads -> Generate\/View Reports$/, a
 });
 
 
-When('I generate all available reports', async function (this: CustomWorld) {
+When(
+  'I generate all available reports',
+  { timeout: 600000 }, // 10 minutes
+  async function (this: CustomWorld) {
 
-  if (!this.startDate || !this.endDate) {
-    throw new Error('❌ Dates missing before report generation');
+    if (!this.startDate || !this.endDate) {
+      throw new Error('❌ Dates missing before report generation');
+    }
+
+    await this.reports.generateAllReports(
+      this.startDate,
+      this.endDate,
+      this.payrollData
+    );
+
   }
-
-  await this.reports.generateAllReports(this.startDate, this.endDate,this.payrollData);
-});
+);
 // ======================================================
 // ✅ FINAL ASSERTION STEP (OPTIONAL / LIGHT)
 // ======================================================
@@ -125,4 +134,5 @@ When('I generate all available reports', async function (this: CustomWorld) {
 Then('the report should match payroll data', async function () {
   // ✅ Intentionally empty
   // Validation already happens inside ReportsPage
+  //await this.page.pause();
 });

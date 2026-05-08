@@ -1,6 +1,6 @@
 @smoke @1099
 
-Feature: Add 1099 Worker Flow
+Feature: Add, Assert 1099 Worker Flow
 
   Scenario: Add, search and delete 1099 worker
     Given I login as subcontractor for 1099

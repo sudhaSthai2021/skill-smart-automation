@@ -20,6 +20,23 @@ Given('I login to the application', async function (this: CustomWorld) {
 
 // ======================================================
 
+When('I navigate to Add Employee page', async function (this: CustomWorld) {
+  console.log('--- Navigating to Add Employee page');
+
+  await this.laborTracking.goToAddEmployee();
+
+  await this.page.waitForURL(/employees\/editor\/employee\/000000/, {
+    timeout: 30000,
+  });
+
+  await expect(
+    this.page.getByText('Employee Information', { exact: true })
+  ).toBeVisible({ timeout: 30000 });
+
+  console.log('✅ Add Employee page opened');
+});
+/*
+
 Given('I navigate to Add Employee page', async function (this: CustomWorld) {
   await this.page.goto(
     'https://apr2026.skillsmart.us/#/insight/employees/editor/employee/000000000000000000000000'
@@ -27,6 +44,8 @@ Given('I navigate to Add Employee page', async function (this: CustomWorld) {
 
   await expect(this.page).toHaveURL(/employee\/000000/);
 });
+
+*/
 
 // ======================================================
 

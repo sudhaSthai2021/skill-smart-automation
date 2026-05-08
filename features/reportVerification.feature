@@ -24,4 +24,5 @@ Feature: Report Verification across User Roles
 
     Then the report should match payroll data
 
-    
+    #Then I should be able to delete report for the payroll period
+

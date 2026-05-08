@@ -76,124 +76,121 @@ export class LaborTrackingPage {
 
   console.log('--- Clicked View All Payrolls');
 }
-async deletePayroll(org: string, start: string, end: string) {
-  console.log('--- Deleting payroll:', org, start, end);
 
-  await this.page.waitForSelector('.ReactTable .rt-tr-group', { timeout: 20000 });
+async deletePayroll(org: string, start: string, end: string) {
+  console.log('--- DELETE ATTEMPT ---');
+  console.log('Organization:', org);
+  console.log('Start Date  :', start);
+  console.log('End Date    :', end);
+
+  const period = `${start} - ${end}`;
+
+  // ✅ First select the correct payroll period
+  // Try selecting payroll period (only if dropdown exists)
+try {
+  const dropdown = this.page.locator(
+    'label:has-text("Payroll report period")'
+  );
+
+  if (await dropdown.isVisible({ timeout: 5000 })) {
+    console.log('--- Payroll dropdown found, selecting period...');
+    await this.selectPayrollPeriodByText(period);
+  } else {
+    console.log('--- Payroll dropdown NOT visible (admin view), skipping selection');
+  }
+} catch (e) {
+  console.log('--- Dropdown not available, continuing without selection');
+}
+
+  // ✅ Wait until real table data appears, not blank skeleton rows
+  await this.page.waitForFunction(() => {
+    const rows = Array.from(
+      document.querySelectorAll('.ReactTable .rt-tbody .rt-tr-group')
+    );
+
+    return rows.some(row => {
+      const text = row.textContent || '';
+      return text.replace(/\s+/g, '').length > 0;
+    });
+  }, { timeout: 30000 });
+
+  const normalize = (val: string = '') =>
+    val
+      .toLowerCase()
+      .replace(/signed/g, '')
+      .replace(/[^a-z0-9]/g, '')
+      .trim();
+
+  const normalizeDate = (val: string = '') =>
+    val
+      .replace(/[^0-9/]/g, '')
+      .trim();
+
+  const orgNorm = normalize(org);
+  const startNorm = normalizeDate(start);
+  const endNorm = normalizeDate(end);
 
   const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
   const count = await rows.count();
 
-  // ✅ normalize ONLY for matching (NOT UI value)
- const normalize = (val: string) =>
-  val
-    .toLowerCase()
-    .replace(/signed/g, '')      // remove SIGNED badge
-    .replace(/[^a-z0-9]/g, '')   // remove all symbols
-    .trim();
+  console.log('--- Payroll row count:', count);
 
-  const orgNorm = normalize(org);
-
-
-
-  const normalizeDate = (val: string = '') =>
-  val
-    .toLowerCase()
-    .replace(/signed/g, '')
-    .replace(/[^0-9/]/g, '')   // keep only date characters
-    .trim();
-
-const startNorm = normalizeDate(start);
-const endNorm = normalizeDate(end);
   for (let i = 0; i < count; i++) {
     const row = rows.nth(i);
-    const cells = row.locator('.rt-td');
+    const rowText = (await row.innerText()).replace(/\s+/g, ' ').trim();
 
-    const cellCount = await cells.count();
-    if (cellCount < 3) continue;
+    if (!rowText) continue;
 
-    // ✅ safer column reads (based on your logs)
-    const orgTextRaw = await cells.nth(2).innerText();
-    const startText = normalizeDate(await cells.nth(5).innerText());
-const endText = normalizeDate(await cells.nth(6).innerText());
+    console.log(`--- Row ${i}:`, rowText);
 
-    const orgTextNorm = normalize(orgTextRaw);
+    const orgTextNorm = normalize(rowText);
+    const rowDateText = normalizeDate(rowText);
 
-    console.log(`--- Row ${i}:`, {
-      orgTextRaw,
-      orgTextNorm,
-      startText,
-      endText
-    });
+    const isMatch =
+      orgTextNorm.includes(orgNorm) &&
+      rowDateText.includes(startNorm) &&
+      rowDateText.includes(endNorm);
 
-    console.log('CHECKING MATCH:', {
-  orgTextNorm,
-  orgNorm,
-  startText,
-  startNorm,
-  endText,
-  endNorm
-});
-   const isMatch =
-  orgTextNorm === orgNorm &&
-  startText === startNorm &&
-  endText === endNorm;
+    if (!isMatch) continue;
 
-if (isMatch) {
-       console.log('--- Org comparison ---');
+    console.log('✅ Matching payroll row found');
 
-console.log(`orgTextNorm = ${orgTextNorm}`);
-console.log(`orgNorm     = ${orgNorm}`);
+    const deleteBtn = row.locator(
+      '[data-ga-id="gmt_payrollV2_delete_payroll"], button:has(svg)'
+    ).last();
 
-console.log(`startText   = ${startText}`);
-console.log(`startNorm   = ${startNorm}`);
+    await deleteBtn.waitFor({ state: 'visible', timeout: 10000 });
+    await deleteBtn.click();
 
-console.log(`endText     = ${endText}`);
-console.log(`endNorm     = ${endNorm}`);
+    const dialog = this.page.locator('div[role="dialog"]');
+    await dialog.waitFor({ state: 'visible', timeout: 10000 });
 
-console.log('Please see there are the same');
+    await dialog.getByRole('button', { name: /^yes$/i }).click();
 
-      const deleteBtn = row.locator('[data-ga-id="gmt_payrollV2_delete_payroll"]');
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
 
-      await deleteBtn.waitFor({ state: 'visible', timeout: 10000 });
-      await deleteBtn.click();
-      const dialog = this.page.locator('div[role="dialog"]');
-
-      await expect(dialog).toBeVisible();
-
-const yesBtn = dialog.locator('button:has-text("Yes")');
-await yesBtn.click();
-
-      console.log('--- Payroll deleted ✅');
-      return;
-    }
+    console.log('✅ Payroll deleted');
+    return;
   }
 
-  throw new Error('❌ Payroll not found for deletion');
+  throw new Error(`❌ Payroll not found for deletion: ${org} | ${start} - ${end}`);
 }
-/*
+async goToAddEmployee() {
+  await this.page.waitForLoadState('networkidle');
 
-  async navigateToAllPayrolls() {
-    console.log('--- Navigating to All Payrolls...');
+  await this.page.getByText('Labor Tracking', { exact: true }).click();
 
-    // ✅ Wait for sidebar to load
-    await this.page.waitForSelector('text=Labor Tracking', { timeout: 20000 });
+  const employees = this.page.getByText('Employees', { exact: true });
+  await employees.waitFor({ state: 'visible', timeout: 30000 });
+  await employees.click();
 
-    // ✅ Expand Labor Tracking (IMPORTANT)
-    await this.laborTrackingMenu.click();
+  const addEmployee = this.page.getByText('Add Employee', { exact: true });
+  await addEmployee.waitFor({ state: 'visible', timeout: 30000 });
+  await addEmployee.click();
 
-    // ✅ Wait for submenu to appear
-    const viewPayroll = this.page.locator('text=View All Payrolls');
-    await viewPayroll.waitFor({ state: 'visible', timeout: 20000 });
-
-    // ✅ Click submenu
-    await viewPayroll.click();
-
-    console.log('--- Clicked View All Payrolls');
-  }
-
-  */
- //====================================================================================================
+  console.log('--- Add Employee clicked');
+} //====================================================================================================
  async goToImportPayroll() {
   console.log('--- Navigating to Import Payroll');
 
@@ -231,6 +228,109 @@ await yesBtn.click();
 }
 
   //======================================================================================================
+async selectLatestSignedPayrollPeriod() {
+  console.log('Selecting Latest signed Payroll Period');
+
+  await this.page.waitForLoadState('networkidle');
+
+  // Use the specific Payroll report period dropdown
+  const dropdown = this.payrollPeriodDropdown;
+
+  await dropdown.waitFor({ state: 'visible', timeout: 30000 });
+  await dropdown.scrollIntoViewIfNeeded();
+  await dropdown.click();
+
+  const listbox = this.page.locator('ul[role="listbox"]');
+  await listbox.waitFor({ state: 'visible', timeout: 30000 });
+
+  const options = listbox.locator('li[role="option"]');
+  const count = await options.count();
+
+  console.log('--- Payroll period option count:', count);
+
+  if (count === 0) {
+    throw new Error('❌ No payroll period options found');
+  }
+
+  const texts = await options.allInnerTexts();
+  console.log('--- Payroll period options:', texts);
+
+  // Prefer SIGNED option
+  let option = options.filter({ hasText: 'SIGNED' }).first();
+
+  // If no SIGNED option, select first real option that is not Select One
+  if (await option.count() === 0) {
+    option = options
+      .filter({ hasNotText: 'Select One' })
+      .filter({ hasNotText: 'Select a Payroll' })
+      .first();
+  }
+
+  const selectedText = (await option.innerText()).trim();
+  await option.click();
+
+  console.log('--- Selected payroll period:', selectedText);
+
+  // Wait for table to refresh
+  const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+  await rows.first().waitFor({ state: 'visible', timeout: 30000 });
+
+  await this.page.waitForTimeout(1000);
+
+  return selectedText;
+}
+
+async selectPayrollPeriodByText(period: string) {
+  console.log('--- Selecting payroll period:', period);
+
+  await this.page.waitForLoadState('networkidle');
+
+  // ✅ Use your existing locator (correct one)
+  const dropdown = this.payrollPeriodDropdown;
+
+  await dropdown.waitFor({ state: 'visible', timeout: 30000 });
+  await dropdown.scrollIntoViewIfNeeded();
+  await dropdown.click();
+
+  // ✅ VERY IMPORTANT (MUI listbox)
+  const listbox = this.page.locator('ul[role="listbox"]');
+  await listbox.waitFor({ state: 'visible', timeout: 30000 });
+
+  const options = listbox.locator('li[role="option"]');
+  const count = await options.count();
+
+  console.log('--- Dropdown option count:', count);
+
+  for (let i = 0; i < count; i++) {
+    const option = options.nth(i);
+
+    const rawText = await option.innerText();
+
+    // ✅ Normalize UI text
+    const text = rawText.replace(/\s+/g, ' ').trim();
+
+    console.log(`--- Option ${i}: ${text}`);
+
+    // ✅ MATCH ONLY DATE PART (ignore SIGNED etc)
+    if (text.includes(period)) {
+      await option.click();
+
+      console.log('--- Selected imported payroll period:', text);
+
+      // Wait for table refresh
+      const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
+      await rows.first().waitFor({ state: 'visible', timeout: 30000 });
+
+      await this.page.waitForTimeout(1000);
+
+      return;
+    }
+  }
+
+  throw new Error(`❌ Payroll period not found: ${period}`);
+}
+/*
+
   async selectLatestSignedPayrollPeriod() {
 
     console.log('Selecting Latest signed Payroll Period');
@@ -266,6 +366,8 @@ console.log('--- Table fully loaded with data');
 
 
   }
+
+  */
 
   //=======================================================================================================
   async selectPayrollPeriod(period: string = 'SIGNED') {
@@ -494,6 +596,25 @@ async goToAdd1099Worker() {
   console.log('--- Workers list opened');
 }
 
+async goToCreatePayroll() {
+  console.log('--- Navigating to Create Payroll');
+
+  const laborTracking = this.page.getByText('Labor Tracking', { exact: true });
+  const createPayroll = this.page.getByText('Create Payroll', { exact: true });
+
+  if (!(await createPayroll.isVisible())) {
+    await laborTracking.click();
+  }
+
+  await createPayroll.waitFor({ state: 'visible', timeout: 30000 });
+  await createPayroll.click();
+
+  await this.page
+    .locator('#mui-component-select-selectedDateRange')
+    .waitFor({ state: 'visible', timeout: 30000 });
+
+  console.log('--- Create Payroll page opened');
+}
 
 
 

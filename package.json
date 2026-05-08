@@ -10,18 +10,13 @@
     "test": "tests"
   },
   "scripts": {
-  "test": "npx playwright test",
-
-  "cucumber": "cucumber-js --require-module ts-node/register 'features/**/*.feature' --require 'step-definitions/**/*.ts' --format json:reports/cucumber-report.json",
-
-  "report:html": "npx cucumber-html-reporter --theme bootstrap --jsonFile reports/cucumber-report.json --output reports/report.html --reportSuiteAsScenarios true && start reports/report.html",
-
-  "report:all": "cucumber-js --require-module ts-node/register 'features/**/*.feature' --require 'step-definitions/**/*.ts' --format json:reports/cucumber-report.json && node reporter.js && start reports/html-report/index.html",
-
-  "regression": "cucumber-js --tags @regression",
-
-  "test:all-headed-report": "npx playwright test --headed && npx playwright show-report"
-},
+    "test": "npx playwright test",
+    "cucumber": "cucumber-js --require-module ts-node/register 'features/**/*.feature' --require 'step-definitions/**/*.ts' --format json:reports/cucumber-report.json",
+    "report:html": "npx cucumber-html-reporter --theme bootstrap --jsonFile reports/cucumber-report.json --output reports/report.html --reportSuiteAsScenarios true && start reports/report.html",
+   "report:all": "cmd /c \"cucumber-js --require-module ts-node/register \\\"features/**/*.feature\\\" --require \\\"step-definitions/**/*.ts\\\" --format json:reports/cucumber-report.json & node reporter.js & start reports/html-report/index.html\"",
+    "regression": "cucumber-js --tags @regression",
+    "test:all-headed-report": "npx playwright test --headed && npx playwright show-report"
+  },
   "devDependencies": {
     "@cucumber/cucumber": "^12.7.0",
     "@cucumber/html-formatter": "^23.0.0",

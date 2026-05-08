@@ -11,6 +11,8 @@ export class NavigationPage {
   readonly employeesTab: Locator;
   readonly profileIcon: Locator;
   readonly logoutButton: Locator;
+  readonly subcontractorsMenu: Locator;
+readonly addSubcontractorMenu: Locator;
 
 
   constructor(page: Page) {
@@ -24,6 +26,15 @@ export class NavigationPage {
     this.employeesTab = page.getByRole('tab', { name: 'Employees' });
     this.profileIcon=page.getByRole('img', { name: /profile|user/i });
     this.logoutButton=page.getByText('Logout');
+    this.subcontractorsMenu = page.getByText(
+  'Subcontractors',
+  { exact: true }
+);
+
+this.addSubcontractorMenu = page.getByText(
+  'Add Subcontractor',
+  { exact: true }
+);
   }
 
   async navigateToAddEmployee() {
@@ -179,99 +190,60 @@ async selectProject(projectName: string) {
   // ======================================================
   throw new Error(`❌ Could not find project selection UI for: ${projectName}`);
 }
-/*
 
-async selectProject(projectName: string) {
-  console.log('--- Selecting project:', projectName);
 
-  const url = this.page.url();
+async navigateToAddSubcontractor() {
 
-  // ======================================================
-  // ✅ CASE 1: PROJECT CARD PAGE
-  // ======================================================
-  if (url.includes('/project/select')) {
+  console.log('--- Navigating to Add Subcontractor');
 
-    const projectTitle = this.page.locator('p', { hasText: projectName }).first();
-    await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
-
-    console.log('--- Project title found (card view)');
-
-    const projectCard = projectTitle.locator(
-      'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
-    );
-
-    await projectCard.scrollIntoViewIfNeeded();
-
-    await projectCard.locator('button:has-text("Select")').click();
-
-    await this.page.waitForURL(/dashboard/, { timeout: 30000 });
-
-    console.log('--- Project selected via card');
-    return;
-  }
-
-  // ======================================================
-  // ✅ CASE 2: DROPDOWN (REPORT PAGE)
-  // ======================================================
-  console.log('--- Trying dropdown selection');
-
-  const dropdown = this.page.locator('div[role="button"]').filter({
-    hasText: 'Project'
+  await this.subcontractorsMenu.waitFor({
+    state: 'visible',
+    timeout: 30000
   });
 
-  if (await dropdown.count() > 0) {
-    await dropdown.first().click();
+  await this.subcontractorsMenu.click();
 
-    const option = this.page.locator('li').filter({
-      hasText: projectName
-    });
+  await this.addSubcontractorMenu.waitFor({
+    state: 'visible',
+    timeout: 30000
+  });
 
-    await option.first().click();
+  await this.addSubcontractorMenu.click();
 
-    console.log('--- Project selected via dropdown');
-    return;
+  await this.page.waitForLoadState('networkidle');
+
+  console.log('✅ Add Subcontractor page opened');
+}
+//===========================================================================================
+
+
+async navigateToViewAllSubcontractors() {
+  console.log('--- Navigating to View All Subcontractors');
+
+  await this.page.keyboard.press('Escape');
+  await this.page.waitForTimeout(1000);
+
+  const viewAll = this.page
+    .locator('text=/View All\\s*Subcontractors/i')
+    .first();
+
+  // If View All is already visible, do not click Subcontractors menu
+  if (!(await viewAll.isVisible().catch(() => false))) {
+    const subcontractorsMenu = this.page
+      .getByText('Subcontractors', { exact: true })
+      .first();
+
+    await subcontractorsMenu.waitFor({ state: 'visible', timeout: 30000 });
+    await subcontractorsMenu.click({ force: true });
+
+    await this.page.waitForTimeout(500);
   }
 
-  // ======================================================
-  // ❌ FAIL SAFE
-  // ======================================================
-  throw new Error(`❌ Could not find project selection UI for: ${projectName}`);
+  await viewAll.waitFor({ state: 'visible', timeout: 30000 });
+  await viewAll.click({ force: true });
+
+  await this.page.waitForLoadState('networkidle');
+
+  console.log('✅ View All Subcontractors page opened');
 }
-
-
-// ======================================================
-// PROJECT SELECTION (GLOBAL NAVIGATION)
-// ======================================================
-async selectProject(projectName: string) {
-  console.log('--- Selecting project:', projectName);
-
- 
-
-  // Step 1: Find project title
-  const projectTitle = this.page.locator('p', { hasText: projectName }).first();
-
-  await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
-
-  console.log('--- Project title found');
-
-  // Step 2: Locate correct parent card
-  const projectCard = projectTitle.locator(
-    'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
-  );
-
-  // Step 3: Scroll safely
-  await projectCard.scrollIntoViewIfNeeded();
-
-  console.log('--- Scrolled to project card');
-
-  // Step 4: Click Select
-  await projectCard.locator('button:has-text("Select")').click();
-
-  // Step 5: Wait for dashboard
-  await this.page.waitForURL(/dashboard/, { timeout: 30000 });
-
-  console.log('--- Project selected successfully');
-}
-
-*/
 }

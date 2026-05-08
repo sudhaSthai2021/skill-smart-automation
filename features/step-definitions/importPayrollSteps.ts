@@ -48,34 +48,7 @@ When(
   }
 );
 
-// ======================================================
-// ✅ COLUMN MAPPING DATA
-// ======================================================
-/*
-const columnMapping = [
-  "First Name",
-  "Last Name",
-  "SSN",
-  "Ethnicity",
-  "Gender",
-  "Street 1",
-  "City",
-  "State",
-  "Zip Code",
-  "Work Classification",
-  "Job id",
-  "Date",
-  "Base Rate",
-  "Overtime Rate",
-  "Double Time Rate",
-  "Regular Hours",
-  "Overtime Hours",
-  "Double Time Hours",
-  "Regular Earnings",
-  "Overtime Earnings",
-  "Doubletime Earnings"
-];
-*/
+
 
 // ======================================================
 // ✅ EXISTING STEPS (UNCHANGED)
@@ -139,11 +112,23 @@ When(
 
 // Select latest payroll period (SIGNED)
 When(
-  'I select the latest payroll report period',
-  async function () {
-    await this.laborTracking.selectLatestSignedPayrollPeriod();
+  'I select the imported payroll report period',
+  async function (this: CustomWorld) {
+    const period = await this.importPayroll.getImportedPayrollPeriodFromFile(
+      'test-data/payroll.xlsx'
+    );
+
+    await this.laborTracking.selectPayrollPeriodByText(period);
+
+    const [startDate, endDate] = period.split('-').map(x => x.trim());
+
+    this.startDate = startDate;
+    this.endDate = endDate;
+
+    console.log(`Selected imported payroll period: ${period}`);
   }
 );
+
 
 Then('I should see the imported payroll in the list', async function () {
   await this.laborTracking.verifyPayrollCreated();
@@ -159,9 +144,8 @@ Then(
     // ✅ Dates (already correct)
     const { startDate, endDate } =
       await this.laborTracking.getSelectedPayrollDates();
-
-    this.startDate = startDate;
-    this.endDate = endDate;
+this.startDate = startDate.split('\n')[0].trim();
+this.endDate = endDate.split('\n')[0].trim();
 
     // ✅ Wait for table to be ready
     const row = this.page.locator('.ReactTable .rt-tr-group').first();
@@ -191,18 +175,10 @@ Then('I login as admin', async function (this: CustomWorld) {
 await expect(this.page).toHaveURL(/dashboard|project\/select/);
 });
 
-Then(
-  'I delete the payroll using extracted data',
-  async function (this: CustomWorld) {
-
-    console.log(
-      `--- Deleting payroll: ${this.organization} ${this.startDate} ${this.endDate}`
-    );
-
-    await this.laborTracking.deletePayroll(
-      this.organization!,
-      this.startDate!,
-      this.endDate!
-    );
-  }
-);
+Then('I delete the payroll using extracted data', async function (this: CustomWorld) {
+  await this.laborTracking.deletePayroll(
+    this.organization!,
+    this.startDate!,
+    this.endDate!
+  );
+});

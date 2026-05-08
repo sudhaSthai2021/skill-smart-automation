@@ -189,4 +189,79 @@ async mapColumns(mapping: { column: string; property: string }[]) {
   await this.importBtn.waitFor({ state: 'visible' });
   await this.importBtn.click();
 }
+
+async getImportedPayrollPeriodFromFile(filePath: string): Promise<string> {
+  const XLSX = require('xlsx');
+
+  const workbook = XLSX.readFile(filePath, { cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+  const rows: any[][] = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    raw: true,
+  });
+
+  const dates: Date[] = [];
+
+  const excelSerialToDate = (serial: number) => {
+    const utcDays = Math.floor(serial - 25569);
+    const utcValue = utcDays * 86400;
+    return new Date(utcValue * 1000);
+  };
+
+  for (const row of rows) {
+    for (const cell of row) {
+      if (!cell) continue;
+
+      // Case 1: real Date object
+      if (cell instanceof Date && !isNaN(cell.getTime())) {
+        dates.push(cell);
+        continue;
+      }
+
+      // Case 2: Excel serial date number
+      if (typeof cell === 'number' && cell > 30000 && cell < 60000) {
+        dates.push(excelSerialToDate(cell));
+        continue;
+      }
+
+      // Case 3: text date dd/mm/yyyy
+      const value = String(cell).trim();
+
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(value)) {
+        const [dd, mm, yyyy] = value.split('/').map(Number);
+        dates.push(new Date(yyyy, mm - 1, dd));
+      }
+    }
+  }
+
+  console.log('--- Dates found from import file:', dates);
+
+  if (dates.length === 0) {
+    throw new Error('❌ No dates found in payroll import file');
+  }
+
+  dates.sort((a, b) => a.getTime() - b.getTime());
+
+  const anyDate = dates[0];
+
+  // Payroll week Monday → Sunday
+  const day = anyDate.getDay(); // Sun=0, Mon=1
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+
+  const start = new Date(anyDate);
+  start.setDate(anyDate.getDate() + diffToMonday);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  const formatUS = (d: Date) =>
+    `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+
+  const period = `${formatUS(start)} - ${formatUS(end)}`;
+
+  console.log('--- Imported payroll period:', period);
+
+  return period;
+}
 }

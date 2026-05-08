@@ -8,6 +8,10 @@ import { LaborTrackingPage } from '../pages/LaborTrackingPage';
 import { ReportsPage } from '../pages/ReportPage';
 import { ImportPayrollPage } from '../pages/ImportPayrollPage';
 import { Add1099WorkerPage } from '../pages/Add1099WorkerPage';
+import { CreatePayrollPage } from '../pages/CreatePayrollPage';
+import { SubcontractorPage } from '../pages/SubcontractorPage';
+
+
 
 
 
@@ -24,6 +28,9 @@ export class CustomWorld {
   reports!: ReportsPage;
   importPayroll!: ImportPayrollPage;
   add1099!: Add1099WorkerPage;
+  createPayroll!: CreatePayrollPage;
+  subcontractor!: SubcontractorPage;
+;
 
   lastReportName?: string;
   payrollData: any[] = [];
@@ -34,11 +41,19 @@ export class CustomWorld {
   startDate?: string;
   endDate?: string;
   organization?: string;
+  
+  createdPayroll?: {
+  organization: string;
+  startDate: string;
+  endDate: string;
+};
 
   workerName!: string;
   workerFullName!: string;
   workerFirstName!:string;
   workerLastName!:string;
+  subcontractorName?: string
+  
 
   async init(browser: Browser) {
     this.browser = browser;
@@ -61,6 +76,8 @@ export class CustomWorld {
     this.reports = new ReportsPage(this.page);
     this.importPayroll = new ImportPayrollPage(this.page);
     this.add1099 = new Add1099WorkerPage(this.page);
+    this.createPayroll = new CreatePayrollPage(this.page);
+    this.subcontractor = new SubcontractorPage(this.page);
   }
 }
 
