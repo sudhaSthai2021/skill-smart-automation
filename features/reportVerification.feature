@@ -4,7 +4,7 @@ Feature: Report Verification across User Roles
     Given I navigate to the application login page
 
   @report
-  Scenario: Verify Subcontractor Payroll data matches Admin Union Tracking Report
+  Scenario: Verify Subcontractor Payroll data matches Admin Reports
 
     # Subcontractor Role
     When I login as user "metadata@gmaiil.com" with password "Govind@2003"
@@ -17,5 +17,12 @@ Feature: Report Verification across User Roles
     When I login as user "nikhil.k@sthai.co.in" with password "Password"
     And I navigate to the "DEFAULT_PROJECT"
     And I go to Reporting -> Reports and Downloads -> Generate/View Reports
-    And I generate the "Employees with Rates and Wages Per Day - Multiple Projects" for the extracted date range
-    Then the downloaded Excel report should contain matching payroll data
+
+
+    # 🔥 Dynamic Step (NO HARDCODING)
+    When I generate all available reports
+
+    Then the report should match payroll data
+
+    #Then I should be able to delete report for the payroll period
+

@@ -20,13 +20,32 @@ Given('I login to the application', async function (this: CustomWorld) {
 
 // ======================================================
 
+When('I navigate to Add Employee page', async function (this: CustomWorld) {
+  console.log('--- Navigating to Add Employee page');
+
+  await this.laborTracking.goToAddEmployee();
+
+  await this.page.waitForURL(/employees\/editor\/employee\/000000/, {
+    timeout: 30000,
+  });
+
+  await expect(
+    this.page.getByText('Employee Information', { exact: true })
+  ).toBeVisible({ timeout: 30000 });
+
+  console.log('✅ Add Employee page opened');
+});
+/*
+
 Given('I navigate to Add Employee page', async function (this: CustomWorld) {
   await this.page.goto(
-    'https://mar2026.skillsmart.us/#/insight/employees/editor/employee/000000000000000000000000'
+    'https://apr2026.skillsmart.us/#/insight/employees/editor/employee/000000000000000000000000'
   );
 
   await expect(this.page).toHaveURL(/employee\/000000/);
 });
+
+*/
 
 // ======================================================
 
@@ -42,13 +61,11 @@ When('I fill employee details', async function (this: CustomWorld) {
   await this.addEmp.selectEthnicity('Asian');
 });
 
-// ======================================================
+
+//============================================================
 
 When('I add address details', async function (this: CustomWorld) {
-  await this.addEmp.goToAddressHistory();
-  await this.addEmp.clickAddNew();
-
-  await this.addEmp.fillAddress(
+  await this.addEmp.addAddressDetails(
     '19th Street',
     'Chicago',
     'IL',
@@ -57,31 +74,37 @@ When('I add address details', async function (this: CustomWorld) {
   );
 });
 
-// ======================================================
-
-When('I save the employee', async function (this: CustomWorld) {
-
-   const saveButton = this.page.locator('button:has-text("Save")');
-
-  // Wait for Save button to become enabled (max 60s)
-  await saveButton.waitFor({ state: 'visible', timeout: 1200000 });
-  await saveButton.click();
-  console.log('✅ Save button clicked (draft may still be pending backend)');
-
-  // Optional pause to check manually
-  await this.page.pause();
-
-  // Skip waiting for URL / toast since backend may not complete save
-  console.log('⚠️ Skipping URL/toast check due to draft-only behavior');
-
-
-
+//=======================================================================
+// ✅ NEW STEP
+When('I save address details', async function (this: CustomWorld) {
+  await this.addEmp.clickSave();
 });
+//=======================================================================
+
+
+When('I fill work info', async function (this: CustomWorld) {
+  await this.addEmp.fillWorkInfo();
+});
+
+// ✅ NEW STEP
+When('I save work info', async function (this: CustomWorld) {
+  await this.addEmp.clickSave();
+})
+
+//========================================================================
+
+When('I add pay rates', async function (this: CustomWorld) {
+  await this.addEmp.addPayRates();
+});
+
+// ========================================================================
+
+
 
 // ======================================================
 
 Then('I should be able to search the employee', async function (this: CustomWorld) {
-  await this.page.pause();
+  //await this.page.pause();
     
    // ✅ mimic working flow
   await this.addEmp.clickEmployeesTab();
@@ -90,6 +113,10 @@ Then('I should be able to search the employee', async function (this: CustomWorl
 
   await this.page.waitForSelector('.ReactTable', { timeout: 20000 });
 
+  // ✅ ADD THIS (important)
+  await this.page.waitForTimeout(3000); // allow backend sync
+ 
+
    // ✅ Use your POM method (clean & reusable)
   await this.addEmp.searchAndOpenEmployee(firstName);
 });
@@ -97,8 +124,8 @@ Then('I should be able to search the employee', async function (this: CustomWorl
 // ======================================================
 
 Then('I delete the employee', async function (this: CustomWorld) {
-  await this.page.pause();
+  //await this.page.pause();
   
   await this.addEmp.deleteEmployee();
-  await this.page.pause();
+  //await this.page.pause();
 });

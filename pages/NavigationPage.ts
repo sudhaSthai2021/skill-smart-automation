@@ -11,6 +11,8 @@ export class NavigationPage {
   readonly employeesTab: Locator;
   readonly profileIcon: Locator;
   readonly logoutButton: Locator;
+  readonly subcontractorsMenu: Locator;
+readonly addSubcontractorMenu: Locator;
 
 
   constructor(page: Page) {
@@ -24,6 +26,15 @@ export class NavigationPage {
     this.employeesTab = page.getByRole('tab', { name: 'Employees' });
     this.profileIcon=page.getByRole('img', { name: /profile|user/i });
     this.logoutButton=page.getByText('Logout');
+    this.subcontractorsMenu = page.getByText(
+  'Subcontractors',
+  { exact: true }
+);
+
+this.addSubcontractorMenu = page.getByText(
+  'Add Subcontractor',
+  { exact: true }
+);
   }
 
   async navigateToAddEmployee() {
@@ -119,5 +130,120 @@ async navigateToReporting() {
   await this.page.waitForSelector('text=Select One', { timeout: 30000 });
 
   console.log('--- Reporting page loaded successfully');
+}
+
+async selectProject(projectName: string) {
+  console.log('--- Selecting project:', projectName);
+
+  const url = this.page.url();
+  console.log('--- Current URL:', url);
+
+  // ======================================================
+  // ✅ CASE 1: PROJECT CARD PAGE
+  // ======================================================
+  if (url.includes('/project/select')) {
+
+    console.log('--- Project selection page detected');
+
+    const projectTitle = this.page.locator('p', { hasText: projectName }).first();
+    await projectTitle.waitFor({ state: 'visible', timeout: 20000 });
+
+    const projectCard = projectTitle.locator(
+      'xpath=ancestor::div[.//button[.//span[text()="Select"]]][1]'
+    );
+
+    await projectCard.scrollIntoViewIfNeeded();
+    await projectCard.locator('button:has-text("Select")').click();
+
+    await this.page.waitForURL(/dashboard/, { timeout: 30000 });
+
+    console.log('--- Project selected via card');
+    return;
+  }
+
+  // ======================================================
+  // ✅ CASE 2: ALREADY IN DASHBOARD (ADMIN / RETURN FLOW)
+  // ======================================================
+  console.log('--- Trying project dropdown');
+
+  const dropdown = this.page.locator('div[role="button"]').filter({
+    hasText: 'Project'
+  });
+
+  if (await dropdown.count() > 0) {
+
+    await dropdown.first().click();
+
+    const option = this.page.locator('li').filter({
+      hasText: projectName
+    });
+
+    await option.first().waitFor({ state: 'visible', timeout: 10000 });
+    await option.first().click();
+
+    console.log('--- Project selected via dropdown');
+    return;
+  }
+
+  // ======================================================
+  // ❌ FAIL SAFE
+  // ======================================================
+  throw new Error(`❌ Could not find project selection UI for: ${projectName}`);
+}
+
+
+async navigateToAddSubcontractor() {
+
+  console.log('--- Navigating to Add Subcontractor');
+
+  await this.subcontractorsMenu.waitFor({
+    state: 'visible',
+    timeout: 30000
+  });
+
+  await this.subcontractorsMenu.click();
+
+  await this.addSubcontractorMenu.waitFor({
+    state: 'visible',
+    timeout: 30000
+  });
+
+  await this.addSubcontractorMenu.click();
+
+  await this.page.waitForLoadState('networkidle');
+
+  console.log('✅ Add Subcontractor page opened');
+}
+//===========================================================================================
+
+
+async navigateToViewAllSubcontractors() {
+  console.log('--- Navigating to View All Subcontractors');
+
+  await this.page.keyboard.press('Escape');
+  await this.page.waitForTimeout(1000);
+
+  const viewAll = this.page
+    .locator('text=/View All\\s*Subcontractors/i')
+    .first();
+
+  // If View All is already visible, do not click Subcontractors menu
+  if (!(await viewAll.isVisible().catch(() => false))) {
+    const subcontractorsMenu = this.page
+      .getByText('Subcontractors', { exact: true })
+      .first();
+
+    await subcontractorsMenu.waitFor({ state: 'visible', timeout: 30000 });
+    await subcontractorsMenu.click({ force: true });
+
+    await this.page.waitForTimeout(500);
+  }
+
+  await viewAll.waitFor({ state: 'visible', timeout: 30000 });
+  await viewAll.click({ force: true });
+
+  await this.page.waitForLoadState('networkidle');
+
+  console.log('✅ View All Subcontractors page opened');
 }
 }

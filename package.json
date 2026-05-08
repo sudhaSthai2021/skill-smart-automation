@@ -13,7 +13,7 @@
     "test": "npx playwright test",
     "cucumber": "cucumber-js --require-module ts-node/register 'features/**/*.feature' --require 'step-definitions/**/*.ts' --format json:reports/cucumber-report.json",
     "report:html": "npx cucumber-html-reporter --theme bootstrap --jsonFile reports/cucumber-report.json --output reports/report.html --reportSuiteAsScenarios true && start reports/report.html",
-    "report:all": "cucumber-js --format html:./reports/report.html && start ./reports/report.html",
+   "report:all": "cmd /c \"cucumber-js --require-module ts-node/register \\\"features/**/*.feature\\\" --require \\\"step-definitions/**/*.ts\\\" --format json:reports/cucumber-report.json & node reporter.js & start reports/html-report/index.html\"",
     "regression": "cucumber-js --tags @regression",
     "test:all-headed-report": "npx playwright test --headed && npx playwright show-report"
   },
@@ -21,13 +21,17 @@
     "@cucumber/cucumber": "^12.7.0",
     "@cucumber/html-formatter": "^23.0.0",
     "@playwright/test": "^1.58.2",
+    "@types/adm-zip": "^0.5.8",
     "@types/cucumber": "^6.0.1",
     "@types/node": "^25.5.0",
+    "@types/pdf-parse": "^1.1.5",
     "multiple-cucumber-html-reporter": "^3.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "adm-zip": "^0.5.17",
+    "pdf-parse": "^1.1.1",
     "xlsx": "^0.18.5"
   }
 }
