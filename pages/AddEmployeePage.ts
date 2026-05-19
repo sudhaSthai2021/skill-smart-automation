@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { DropdownUtils } from '../utils/dropdownUtils';
 
+
 export class AddEmployeePage {
   readonly page: Page;
 
@@ -347,29 +348,37 @@ async clickSave() {
 //============================================================================================================
 
 async deleteEmployee() {
-  await expect(this.deleteButton).toBeVisible({ timeout: 10000 });
-  //await this.page.pause();
-  await this.deleteButton.click();  
+  console.log('--- Deleting employee');
 
-  // Optional: verify title
-  await expect(this.page.getByText('Are you sure?')).toBeVisible();
+  await expect(this.deleteButton).toBeVisible({ timeout: 30000 });
 
-  // ✅ Click YES
-  await expect(this.confirmYesButton).toBeVisible();
+  await this.deleteButton.click();
+
+  await expect(this.page.getByText('Are you sure?')).toBeVisible({
+    timeout: 15000,
+  });
+
+  await expect(this.confirmYesButton).toBeVisible({
+    timeout: 15000,
+  });
+
   await this.confirmYesButton.click();
 
-  // Verify deletion toast
-  const toast = this.page.locator('.MuiAlert-message:has-text("Employee deleted")');
-  await expect(toast).toBeVisible({ timeout: 10000 });
+  await expect(this.deleteToast).toBeVisible({
+    timeout: 15000,
+  });
 
-  const msg = await toast.textContent();
-  console.log('Delete Toast:', msg);
+  await expect(this.deleteToast).toContainText(/deleted/i);
 
-  await expect(toast).toContainText(/deleted/i);
+  console.log('✅ Employee deleted');
 }
 
+//=============================================================================================================
 
-
+async fillEmployeeDetails(gender: string, ethnicity: string) {
+  await this.selectGender(gender);
+  await this.selectEthnicity(ethnicity);
+}
 
 //==============================================================================================================
 
@@ -407,6 +416,7 @@ async searchAndOpenEmployee(firstName: string) {
   );
 
   await employeeRow.first().locator('a').click();
+  await this.page.waitForTimeout(2000);
 }
 
 

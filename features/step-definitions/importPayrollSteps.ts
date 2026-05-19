@@ -3,8 +3,10 @@ import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
 import { payrollMapping } from '../../test-data/payrollMapping';
 
-// ✅ Debug log
-console.log('✅ importPayrollSteps loaded');
+const PAYROLL_FILE_PATH = 'test-data/payroll.xlsx';
+
+const cleanText = (value: string = '') =>
+  value.replace(/\s+/g, ' ').trim();
 
 // ======================================================
 // ✅ LOGIN
@@ -14,10 +16,6 @@ Given('I login as subcontractor', async function (this: CustomWorld) {
   await this.login.goto();
   await this.login.login('metadata@gmaiil.com', 'Govind@2003');
 
-  //const selectButton = this.page.getByRole('button', { name: 'Select' }).first();
-  //await selectButton.click();
-
-  //await expect(this.page).toHaveURL(/dashboard/);
   await this.page.waitForLoadState('networkidle');
 });
 
@@ -26,15 +24,7 @@ Given('I login as subcontractor', async function (this: CustomWorld) {
 // ======================================================
 
 Given('I select the project', async function (this: CustomWorld) {
-  const projectName = 'CSI-000002 | WTP Access Control Systems - Phase 1';
-
-  console.log(`--- Selecting project: ${projectName}`);
-
-  await this.nav.selectProject(projectName);
-
-  //await this.page.getByText(projectName, { exact: true }).click();
-
-  console.log('--- Project selected successfully');
+  await this.nav.selectProject('CSI-000002 | WTP Access Control Systems - Phase 1');
 });
 
 // ======================================================
@@ -42,8 +32,7 @@ Given('I select the project', async function (this: CustomWorld) {
 // ======================================================
 
 When(
-  'I navigate to Labor Tracking -> Payroll -> Import Payroll',
-  async function (this: CustomWorld) {
+  'I navigate to Labor Tracking -> Payroll -> Import Payroll', async function (this: CustomWorld) {
     await this.laborTracking.goToImportPayroll();
   }
 );
@@ -110,10 +99,8 @@ When(
   }
 );
 
-// Select latest payroll period (SIGNED)
 When(
-  'I select the imported payroll report period',
-  async function (this: CustomWorld) {
+  'I select the imported payroll report period', async function (this: CustomWorld) {
     const period = await this.importPayroll.getImportedPayrollPeriodFromFile(
       'test-data/payroll.xlsx'
     );
@@ -135,17 +122,37 @@ Then('I should see the imported payroll in the list', async function () {
   
 });
 
+Then('I extract organization and payroll period for the imported payroll', async function (this: CustomWorld) {
+  const { startDate, endDate } = await this.laborTracking.getSelectedPayrollDates();
+
+  this.startDate = cleanText(startDate.split('\n')[0]);
+  this.endDate = cleanText(endDate.split('\n')[0]);
+
+  this.organization = cleanText(
+    await this.page
+      .locator('label:has-text("Organization")')
+      .locator('xpath=following::div[@role="button"][1]//p')
+      .innerText()
+  );
+
+  console.log('✅ Imported Payroll Stored:', {
+    organization: this.organization,
+    startDate: this.startDate,
+    endDate: this.endDate,
+  });
+});
+
+/*
+
 Then(
-  'I extract organization and payroll period for the imported payroll',
-  async function (this: CustomWorld) {
+  'I extract organization and payroll period for the imported payroll', async function (this: CustomWorld) {
 
     console.log('--- Extracting payroll metadata');
 
     // ✅ Dates (already correct)
-    const { startDate, endDate } =
-      await this.laborTracking.getSelectedPayrollDates();
-this.startDate = startDate.split('\n')[0].trim();
-this.endDate = endDate.split('\n')[0].trim();
+    const { startDate, endDate } = await this.laborTracking.getSelectedPayrollDates();
+    this.startDate = startDate.split('\n')[0].trim();
+    this.endDate = endDate.split('\n')[0].trim();
 
     // ✅ Wait for table to be ready
     const row = this.page.locator('.ReactTable .rt-tr-group').first();
@@ -162,6 +169,7 @@ this.endDate = endDate.split('\n')[0].trim();
     console.log(`--- Organization: ${this.organization}`);
   }
 );
+*/
 Then('I logout', async function (this: CustomWorld) {
   await this.nav.logout();
 });

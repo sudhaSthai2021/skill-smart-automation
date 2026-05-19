@@ -12,6 +12,9 @@ type PayrollRow = {
   hours: number;
   otHours: number;
   dtHours: number;
+  deductions: number;     // ✅ ADD
+  nonProject: number;     // ✅ ADD
+
   grossWages: number;
   netWages: number;
 };
@@ -82,6 +85,8 @@ async deletePayroll(org: string, start: string, end: string) {
   console.log('Organization:', org);
   console.log('Start Date  :', start);
   console.log('End Date    :', end);
+
+  await this.searchPayrollByDateRange(start, end);
 
   const period = `${start} - ${end}`;
 
@@ -176,6 +181,22 @@ try {
 
   throw new Error(`❌ Payroll not found for deletion: ${org} | ${start} - ${end}`);
 }
+
+async goToAddEmployeeAndVerify() {
+  console.log('--- Navigating to Add Employee page');
+
+  await this.goToAddEmployee();
+
+  await this.page.waitForURL(/employees\/editor\/employee\/000000/, {
+    timeout: 30000,
+  });
+
+  await expect(
+    this.page.getByText('Employee Information', { exact: true })
+  ).toBeVisible({ timeout: 30000 });
+
+  console.log('✅ Add Employee page opened');
+}
 async goToAddEmployee() {
   await this.page.waitForLoadState('networkidle');
 
@@ -211,6 +232,32 @@ async goToAddEmployee() {
   console.log('--- Navigation complete');
 }
   //=====================================================================================================
+
+  async searchPayrollByDateRange(start: string, end: string) {
+  const dateInputs = this.page.getByPlaceholder('mm/dd/yyyy');
+
+  await dateInputs.nth(0).click();
+  await dateInputs.nth(0).press('Control+A');
+  await dateInputs.nth(0).fill(start);
+
+  await dateInputs.nth(1).click();
+  await dateInputs.nth(1).press('Control+A');
+  await dateInputs.nth(1).fill(end);
+
+  await dateInputs.nth(1).press('Tab');
+
+  // Click Search / Apply if button exists
+  const searchBtn = this.page.getByRole('button', { name: /search|apply|filter/i });
+
+  if (await searchBtn.count()) {
+    await searchBtn.first().click();
+  }
+
+  await this.page.waitForLoadState('networkidle');
+  await this.page.waitForTimeout(1500);
+}
+
+//=====================================================================================================
 
   async getSelectedPayrollDates(): Promise<{ startDate: string; endDate: string }> {
 
@@ -329,45 +376,6 @@ async selectPayrollPeriodByText(period: string) {
 
   throw new Error(`❌ Payroll period not found: ${period}`);
 }
-/*
-
-  async selectLatestSignedPayrollPeriod() {
-
-    console.log('Selecting Latest signed Payroll Period');
-
-    // 1. Open the dropdown
-    await this.payrollPeriodDropdown.click();
-
-    // 2. Wait for options to appear
-    const options = this.page.locator('ul[role="listbox"] >> [role="option"]');
-    await options.first().waitFor({ state: 'visible' });
-
-    // 3. Filter only SIGNED rows
-    const signedOptions = options.filter({ hasText: 'SIGNED' });
-
-    // 4. Click the FIRST one (latest)
-    await signedOptions.first().click();
-
-    // ✅ WAIT for table to refresh properly (reliable way)
-
-   // Wait until at least one row is visible
-      const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
-      await rows.first().waitFor({ state: 'visible', timeout: 30000 });
-
-   // Wait until real data appears (not empty/loading rows)
-      await this.page.waitForSelector(
-      '.ReactTable .rt-tbody .rt-tr-group >> text=/[A-Za-z]/',
-    { timeout: 30000 }
-);
-
-console.log('--- Table fully loaded with data');
-
-    console.log('--- Table refreshed after selecting payroll period');
-
-
-  }
-
-  */
 
   //=======================================================================================================
   async selectPayrollPeriod(period: string = 'SIGNED') {
@@ -434,7 +442,10 @@ console.log('--- Table fully loaded with data');
 
     console.log('--- Table data is now visible.');
   }
-async extractStandardPayrollData(): Promise<PayrollRow[]> {
+
+  //==================================================================================
+
+  async extractStandardPayrollData(): Promise<PayrollRow[]> {
   console.log('--- Extracting ALL rows from ReactTable...');
 
   const rows = this.page.locator('.ReactTable .rt-tbody .rt-tr-group');
@@ -448,52 +459,85 @@ async extractStandardPayrollData(): Promise<PayrollRow[]> {
 
   const data: PayrollRow[] = [];
 
+  const cleanNumber = (val: string) =>
+    parseFloat(val.replace(/[$,]/g, '').trim()) || 0;
+
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
     const cells = row.locator('.rt-td');
 
-   
-
     const cellCount = await cells.count();
+    console.log(`Row ${i} column count:`, cellCount);
 
-// ✅ ADD THIS (debug + safety)
-console.log(`Row ${i} column count:`, cellCount);
-
-
-if (cellCount === 0) continue;
+    if (cellCount < 12) continue;
 
     const getText = async (index: number) =>
-      (await cells.nth(index).innerText()).trim();
+      (await cells.nth(index).innerText())
+        .replace(/\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-    const rawName = (await getText(2))
-      .replace(/\n/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+    const rawName = await getText(1);      // ✅ Correct
+    const workClass = await getText(2);    // ✅ Correct
+    const jobLevel = await getText(3);     // ✅ Correct
 
     if (!rawName || rawName.includes('Select') || rawName.includes('Loading')) {
       continue;
     }
 
-    const [lastName, firstName] = rawName.split(',').map(s => s?.trim());
+    const hours = cleanNumber(await getText(5));
+    const otHours = cleanNumber(await getText(6));
+    const dtHours = cleanNumber(await getText(7));
+    const deductions = cleanNumber(await getText(8)); // optional
+    const nonProject = cleanNumber(await getText(9)); // optional
+    const grossWages = cleanNumber(await getText(10));
+    const netWages = cleanNumber(await getText(11));
+    console.log(`Row ${i} extracted:`, {
+  rawName,
+  hours,
+  otHours,
+  dtHours,
+  grossWages,
+  netWages
+});
 
-    const cleanNumber = (val: string) =>
-      parseFloat(val.replace(/[$,]/g, '').trim()) || 0;
+    // ✅ Skip zero rows
+    if (
+      hours === 0 &&
+      otHours === 0 &&
+      dtHours === 0 &&
+      grossWages === 0 &&
+      netWages === 0
+    ) {
+      continue;
+    }
+      
 
+    let employeeLast = '';
+    let employeeFirst = '';
 
-const rowData: PayrollRow = {
-  fullName: rawName,                     // Name → index 1
-  employeeFirst: firstName || '',
-  employeeLast: lastName || '',
-  workClass: await getText(2),           // ✅ FIXED
-  jobLevel: await getText(3),            // ✅ FIXED
-  hours: cleanNumber(await getText(5)),  // ✅ FIXED
-  otHours: cleanNumber(await getText(6)),
-  dtHours: cleanNumber(await getText(7)),
-  grossWages: cleanNumber(await getText(10)), // ✅ FIXED
-  netWages: cleanNumber(await getText(11)),   // ✅ FIXED
-};
+    if (rawName.includes(',')) {
+      const parts = rawName.split(',');
+      employeeLast = parts[0].trim();
+      employeeFirst = parts.slice(1).join(',').trim();
+    } else {
+      employeeLast = rawName;
+    }
 
-
+    const rowData: PayrollRow = {
+      fullName: rawName,
+      employeeFirst,
+      employeeLast,
+      workClass,
+      jobLevel,
+      hours,
+      otHours,
+      dtHours,
+      deductions,
+      nonProject,
+      grossWages,
+      netWages,
+    };
 
     data.push(rowData);
   }
@@ -536,9 +580,6 @@ async verifyPayrollCreated(expectedPeriod?: string) {
   console.log('✅ Payroll successfully created and visible');
 }
 
-//============================================================================================================
-
-//====================================================================================================
 //====================================================================================================
 async goToAdd1099Worker() {
   const page = this.page;
@@ -596,6 +637,9 @@ async goToAdd1099Worker() {
   console.log('--- Workers list opened');
 }
 
+
+//=============================================================================================================================
+
 async goToCreatePayroll() {
   console.log('--- Navigating to Create Payroll');
 
@@ -615,9 +659,5 @@ async goToCreatePayroll() {
 
   console.log('--- Create Payroll page opened');
 }
-
-
-
-
 
 }

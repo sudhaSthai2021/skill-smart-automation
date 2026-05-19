@@ -245,7 +245,7 @@ async handleDateRange(config: {
   }
 
   //========================================================================================================================================
-
+  
   private async extractZip(filePath: string): Promise<string[]> {
     const zip = new AdmZip(filePath);
     const extractPath = filePath.replace('.zip', '');
@@ -255,10 +255,12 @@ async handleDateRange(config: {
     return fs.readdirSync(extractPath)
       .map(f => path.join(extractPath, f));
   }
+      
 
   // ======================================================
   // PDF VALIDATION
   // ======================================================
+  
   private async verifyPDF(reportName: string, filePath: string) {
     const buffer = fs.readFileSync(filePath);
     const data = await pdfParse(buffer);
@@ -269,6 +271,7 @@ async handleDateRange(config: {
 
     console.log('✅ PDF validated');
   }
+    
 
   // ======================================================
   // EXCEL VALIDATION
@@ -282,35 +285,37 @@ console.log(`--- verifyExcel called for: ${reportName}`);
 
   switch (reportName.trim()) {
 
-    case 'Employees with Rates and Wages Per Day - Multiple Projects':
-      console.log('✅ Verifying Per Day - Multiple Projects');
-      return this.verifyEmployeePayroll(filePath, payrollData);
+    //case 'Employees with Rates and Wages Per Day - Multiple Projects':
+     // console.log('✅ Verifying Per Day - Multiple Projects');
+    //  return this.verifyEmployeePayroll(filePath, payrollData);
 
-    case 'Employees with Rates and Wages Period End - Multiple Projects':
-      console.log('✅ Verifying Period End - Multiple Projects');
-      return this.verifyEmployeePayrollPeriodEnd(filePath, payrollData);
+    //case 'Employees with Rates and Wages Period End - Multiple Projects':
+    //  console.log('✅ Verifying Period End - Multiple Projects');
+    //  return this.verifyEmployeePayrollPeriodEnd(filePath, payrollData);
 
-    case 'Project Employees with Rates and Wages Per Day':
-      console.log('✅ Verifying Project Per Day');
-      return this.verifyProjectEmployeePayroll(filePath, payrollData);
+    //  case 'Project Employees with Rates and Wages Per Day':
+    //  console.log('✅ Verifying Project Per Day');
+    //  return this.verifyProjectEmployeePayroll(filePath, payrollData);
 
     case 'Project Employees with Rates and Wages Period End':
       console.log('✅ Verifying Project Period End');
       return this.verifyProjectEmployeePayrollPeriodEnd(filePath, payrollData);
 
-    case 'Contractor Configuration Status':
-      console.log('✅ Verifying Contractor Config');
-      return this.verifyContractorConfig(filePath);
+   // case 'Contractor Configuration Status':
+  //  console.log('✅ Verifying Contractor Config');
+   //   return this.verifyContractorConfig(filePath);
 
-    case 'Wage Rate Discrepancy - Standard':
-      console.log('✅ Verifying Wage Rate Discrepancy');
-      return this.verifyWageRateDiscrepancy(filePath);
+   // case 'Wage Rate Discrepancy - Standard':
+   //   console.log('✅ Verifying Wage Rate Discrepancy');
+   //   return this.verifyWageRateDiscrepancy(filePath);
 
     default:
       console.log(`⚠️ No validation implemented for: ${reportName}`);
   }
   }
-//==========================================================================================================================================
+//=================================================================================================================================
+// 
+/*=========
   private async verifyProjectEmployeePayroll(
   filePath: string,
   uiData: PayrollRow[]
@@ -320,7 +325,10 @@ console.log(`--- verifyExcel called for: ${reportName}`);
   // Later you may validate project-specific columns
   return this.verifyEmployeePayroll(filePath, uiData);
 }
+
+*/
 //===========================================================================================================================================
+ /*
   private async verifyEmployeePayrollPeriodEnd(
   filePath: string,
   uiData: PayrollRow[]
@@ -330,6 +338,7 @@ console.log(`--- verifyExcel called for: ${reportName}`);
   // You can reuse base logic if same
   return this.verifyEmployeePayroll(filePath, uiData);
 }
+  */
 
   //==========================================================================================================================================
 
@@ -338,13 +347,12 @@ console.log(`--- verifyExcel called for: ${reportName}`);
   uiData: PayrollRow[]
 ) {
   console.log('🔥 verifyProjectEmployeePayrollPeriodEnd STARTED');
-  
 
   if (!uiData.length) {
     throw new Error('❌ No UI payroll data');
   } else {
-  console.log('UI Data rows:', uiData.length);
-}
+    console.log('UI Data rows:', uiData.length);
+  }
 
   // 📄 Read Excel
   const wb = XLSX.readFile(filePath);
@@ -362,63 +370,84 @@ console.log(`--- verifyExcel called for: ${reportName}`);
 
   const headers = rows[headerIndex];
 
-  // ✅ ADD THIS LINE
-console.log('📄 Excel Headers:', headers);
+  console.log('📄 Excel Headers:', headers);
 
   const dataRows = rows.slice(headerIndex + 1);
 
   // 📌 Column indexes
   const getIndex = (name: string) =>
-  headers.findIndex(h =>
-    h?.toString().replace(/\r?\n/g, '').trim().toLowerCase()
-      .includes(name.toLowerCase())
-  );
+    headers.findIndex(h =>
+      h?.toString()
+        .replace(/\r?\n/g, '')
+        .trim()
+        .toLowerCase()
+        .includes(name.toLowerCase())
+    );
 
   const idxFirst = getIndex('Employee First');
   const idxLast = getIndex('Employee Last');
   const idxHours = getIndex('Hours');
   const idxOt = getIndex('OT Hours');
   const idxDt = getIndex('DT Hours');
-  const idxGross = getIndex('Total Paid for Period'); // ✅ IMPORTANT
-  const idxNet = getIndex('Net Wages');
+  const idxGross = getIndex('Total Paid for Period');
+
+  // ❌ REMOVE NET WAGES
+  // const idxNet = getIndex('Net Wages');
 
   if (idxFirst === -1 || idxLast === -1 || idxHours === -1) {
     throw new Error('❌ Required columns not found in Excel');
   }
+
   const errors: string[] = [];
 
-   // 🔄 Compare UI vs Excel
+  // 🔄 Compare UI vs Excel
   for (let i = 0; i < uiData.length; i++) {
-  const ui = uiData[i];
+    const ui = uiData[i];
 
-  const excelRow = dataRows.find(r =>
-    r[idxFirst]?.toString().trim() === ui.employeeFirst.split(' ')[0] &&
-    r[idxLast]?.toString().trim() === ui.employeeLast
-  );
+    const excelRow = dataRows.find(r =>
+      r[idxFirst]?.toString().trim() === ui.employeeFirst.split(' ')[0] &&
+      r[idxLast]?.toString().trim() === ui.employeeLast
+    );
 
-  if (!excelRow) {
-    errors.push(`❌ Missing Excel row for ${ui.employeeFirst} ${ui.employeeLast}`);
-    continue;
+    if (!excelRow) {
+      errors.push(
+        `❌ Missing Excel row for ${ui.employeeFirst} ${ui.employeeLast}`
+      );
+      continue;
+    }
+
+    const excelHours = Number(excelRow[idxHours] ?? 0);
+    const excelOtHours = Number(excelRow[idxOt] ?? 0);
+    const excelDtHours = Number(excelRow[idxDt] ?? 0);
+    const excelGross = Number(excelRow[idxGross] ?? 0);
+
+    // ❌ REMOVE NET
+    // const excelNet = Number(excelRow[idxNet] ?? 0);
+
+    this.logComparison('Hours', ui.hours, excelHours);
+    this.logComparison('OT Hours', ui.otHours, excelOtHours);
+    this.logComparison('DT Hours', ui.dtHours, excelDtHours);
+    this.logComparison('Gross', ui.grossWages, excelGross);
+
+    // ❌ REMOVE NET
+    // this.logComparison('Net', ui.netWages, excelNet);
+
+    if (ui.hours !== excelHours)
+      errors.push(`Hours mismatch for ${ui.employeeFirst}`);
+
+    if (ui.otHours !== excelOtHours)
+      errors.push(`OT mismatch for ${ui.employeeFirst}`);
+
+    if (ui.dtHours !== excelDtHours)
+      errors.push(`DT mismatch for ${ui.employeeFirst}`);
+
+    if (ui.grossWages !== excelGross)
+      errors.push(`Gross mismatch for ${ui.employeeFirst}`);
+
+    // ❌ REMOVE NET VALIDATION
+    // if (ui.netWages !== excelNet)
+    //   errors.push(`Net mismatch for ${ui.employeeFirst}`);
   }
-
-  const excelHours = Number(excelRow[idxHours] ?? 0);
-  const excelOtHours = Number(excelRow[idxOt] ?? 0);
-  const excelDtHours = Number(excelRow[idxDt] ?? 0);
-  const excelGross = Number(excelRow[idxGross] ?? 0);
-  const excelNet = Number(excelRow[idxNet] ?? 0);
-
-  this.logComparison('Hours', ui.hours, excelHours);
-  this.logComparison('OT Hours', ui.otHours, excelOtHours);
-  this.logComparison('DT Hours', ui.dtHours, excelDtHours);
-  this.logComparison('Gross', ui.grossWages, excelGross);
-  this.logComparison('Net', ui.netWages, excelNet);
-
-  if (ui.hours !== excelHours) errors.push(`Hours mismatch for ${ui.employeeFirst}`);
-  if (ui.otHours !== excelOtHours) errors.push(`OT mismatch for ${ui.employeeFirst}`);
-  if (ui.dtHours !== excelDtHours) errors.push(`DT mismatch for ${ui.employeeFirst}`);
-  if (ui.grossWages !== excelGross) errors.push(`Gross mismatch for ${ui.employeeFirst}`);
-  if (ui.netWages !== excelNet) errors.push(`Net mismatch for ${ui.employeeFirst}`);
-}
 
   // ❗ Final result
   if (errors.length) {
@@ -429,7 +458,7 @@ console.log('📄 Excel Headers:', headers);
   console.log('✅ Project Period End Excel validated');
 }
 //==============================================================================================================================================
-
+/*
   private async verifyContractorConfig(filePath: string) {
     const wb = XLSX.readFile(filePath);
     const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -439,6 +468,11 @@ console.log('📄 Excel Headers:', headers);
 
     console.log('✅ Contractor Config validated');
   }
+
+  */
+
+  //===============================================================================
+  /*
 
   private async verifyEmployeePayroll(filePath: string, uiData: PayrollRow[]) {
     if (!uiData.length) {
@@ -488,6 +522,8 @@ console.log('📄 Excel Headers:', headers);
     console.log('✅ Payroll Excel validated');
   }
 
+  */
+
   //===========================================================================================================================================
 
 async getAllReportNames(): Promise<string[]> {
@@ -520,7 +556,6 @@ async getAllReportNames(): Promise<string[]> {
   'Custom Downloads',
   'Custom Reports'
 ];
- // const invalidKeywords = ['custom', 'standard'];
 
  for (let i = 0; i < count; i++) {
     const item = options.nth(i);
@@ -566,41 +601,7 @@ private async verifyWageRateDiscrepancy(filePath: string) {
 
   console.log('✅ Wage Rate Discrepancy validated');
 }
-/*
-  for (let i = 0; i < count; i++) {
-    const item = options.nth(i);
 
-    await item.scrollIntoViewIfNeeded();
-
-    const text = (await item.innerText()).trim();
-    if (!text) continue;
-
-    const lower = text.toLowerCase();
-
-    // ❌ Skip unwanted entries
-    if (
-      invalidExact.includes(text) ||
-      invalidKeywords.some(k => lower.includes(k))
-    ) {
-      console.log(`--- Skipping invalid: ${text}`);
-      continue;
-    }
-
-    // ✅ Add only valid reports
-    if (!reportNames.includes(text)) {
-      console.log(`--- Valid report: ${text}`);
-      reportNames.push(text);
-    }
-  }
-
-  // ✅ Close dropdown safely
-  await this.page.keyboard.press('Escape');
-
-  console.log('--- Final report list:', reportNames);
-
-  return reportNames;
-}
-*/
 //============================================================================================================================================
 
 async generateAllReports(startDate: string, endDate: string, payrollData: PayrollRow[]) {

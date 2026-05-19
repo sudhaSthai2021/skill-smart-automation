@@ -48,7 +48,7 @@ this.payrollPeriodDropdown = this.page.locator(
 
   // ======================================================
   async selectPayrollPeriod(): Promise<string> {
-  // Click dropdown
+  // Click dropdown and select the first option 
   await this.payrollPeriodDropdown.click();
 
   // Wait for options
@@ -64,6 +64,8 @@ this.payrollPeriodDropdown = this.page.locator(
   return text;
 }
 
+//============================================================
+
   extractDates(period: string) {
     const dates = period.match(/\d{1,2}\/\d{1,2}\/\d{4}/g);
     if (!dates || dates.length < 2) throw new Error('❌ Dates not found');
@@ -73,6 +75,8 @@ this.payrollPeriodDropdown = this.page.locator(
       endDate: dates[1],
     };
   }
+
+//=============================================================
 async clickCreate() {
   await this.createBtn.waitFor({ state: 'visible', timeout: 15000 });
   await expect(this.createBtn).toBeEnabled({ timeout: 15000 });
@@ -84,12 +88,13 @@ async clickCreate() {
 
   await this.paycheckInput.waitFor({ state: 'visible', timeout: 30000 });
 }
+//===============================================================
 
   async fillHeader(paycheck: string, date: string) {
     await this.paycheckInput.fill(paycheck);
     await this.paymentDateInput.fill(date);
   }
-
+//================================================================
  async fillHours() {
   const inputs = this.page.locator('input');
 
@@ -114,6 +119,7 @@ async clickCreate() {
     } catch {}
   }
 }
+//===============================================================
 
 async save() {
   await this.saveBtn.waitFor({ state: 'visible', timeout: 15000 });
@@ -151,6 +157,8 @@ async save() {
   console.log('✅ Save completed');
 }
 
+//======================================================================
+
 
 async signPayroll() {
   // Click SIGN
@@ -171,10 +179,14 @@ async signPayroll() {
   await expect(this.successToast).toBeVisible({ timeout: 15000 });
 }
 
+//=========================================================================
+
   async generateA1131() {
     await this.generateBtn.click();
     await this.page.waitForURL(/generate-347/);
   }
+
+//========================================================================
 
   async completeGeneration() {
     const checkboxes = this.page.locator('input[type="checkbox"]');
@@ -190,11 +202,14 @@ async signPayroll() {
 
     await expect(this.successToast).toBeVisible();
   }
+//========================================================================
 
   async extractWeekEnding(): Promise<string> {
     const text = await this.page.locator('text=Payroll Week Ending').innerText();
     return text.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0] || '';
   }
+
+//=========================================================================
 
   async extractOrganization(): Promise<string> {
   const org = await this.page
@@ -204,6 +219,8 @@ async signPayroll() {
 
   return org.trim();
 }
+
+//=========================================================================
 async handleConfirmationIfPresent() {
   try {
     await this.yesBtn.waitFor({ state: 'visible', timeout: 4000 });

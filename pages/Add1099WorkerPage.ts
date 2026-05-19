@@ -114,6 +114,9 @@ export class Add1099WorkerPage {
   async selectWorkClasses() {
   const classes = ['Fitter', 'Label Test', 'Not Used WC 1'];
 
+  //const classes =['Work class with a very very long name - Craft Workers: Apprentice'];
+
+
   for (const name of classes) {
     const row = this.page.locator('li', { hasText: name });
 
@@ -135,6 +138,34 @@ export class Add1099WorkerPage {
 
   // =======================================================
 
+  async searchAndOpenWorkerFromViewAll(workerName: string) {
+  await this.page.getByText('1099 Management').click();
+
+  const search = this.page.locator('input[placeholder="Search"]');
+
+  await search.waitFor({
+    state: 'visible',
+    timeout: 15000,
+  });
+
+  await search.fill(workerName);
+
+  await this.page.waitForTimeout(2000);
+
+  const row = this.page.locator(`.rt-tr-group:has-text("${workerName}")`);
+
+  await expect(row.first()).toBeVisible({
+    timeout: 15000,
+  });
+
+  await row.first().click();
+
+  console.log(`✅ Opened 1099 worker: ${workerName}`);
+}
+//=====================================================================
+
+
+
   async searchAndOpen(name: string) {
   //await this.page.pause();
   await this.searchInput.fill(name);
@@ -145,6 +176,8 @@ export class Add1099WorkerPage {
 
   await row.click();
 }
+
+
 
 
  

@@ -13,9 +13,6 @@ import { SubcontractorPage } from '../pages/SubcontractorPage';
 
 
 
-
-
-
 export class CustomWorld {
   browser!: Browser;
   context!: BrowserContext; // ✅ ADD THIS
@@ -30,7 +27,7 @@ export class CustomWorld {
   add1099!: Add1099WorkerPage;
   createPayroll!: CreatePayrollPage;
   subcontractor!: SubcontractorPage;
-;
+
 
   lastReportName?: string;
   payrollData: any[] = [];
@@ -48,11 +45,11 @@ export class CustomWorld {
   endDate: string;
 };
 
-  workerName!: string;
-  workerFullName!: string;
-  workerFirstName!:string;
-  workerLastName!:string;
-  subcontractorName?: string
+  workerName?: string;
+  workerFullName?: string;
+  workerFirstName?: string;
+  workerLastName?: string;
+  subcontractorName?: string;
   
 
   async init(browser: Browser) {
@@ -79,68 +76,30 @@ export class CustomWorld {
     this.createPayroll = new CreatePayrollPage(this.page);
     this.subcontractor = new SubcontractorPage(this.page);
   }
+
+
+async storeCreatedPayroll() {
+  const clean = (value: string) =>
+    value
+      .replace(/SIGNED/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const organization = clean(
+    await this.createPayroll.extractOrganization()
+  );
+
+  this.organization = organization;
+
+  this.createdPayroll = {
+    organization,
+    startDate: clean(this.startDate!),
+    endDate: clean(this.endDate!),
+  };
+
+  console.log('✅ Created Payroll Stored:', this.createdPayroll);
+}
 }
 
 setWorldConstructor(CustomWorld);
 
-/*
-
-
-
-
-
-
-import { setWorldConstructor } from '@cucumber/cucumber';
-import { chromium, Browser, Page } from 'playwright';
-import { LoginPage } from '../pages/LoginPage';
-import { NavigationPage } from '../pages/NavigationPage';
-import { AddEmployeePage } from '../pages/AddEmployeePage';
-import {LaborTrackingPage } from '../pages/LaborTrackingPage';
-import { ReportsPage } from '../pages/ReportPage';
-import { ImportPayrollPage } from '../pages/ImportPayrollPage';
-
-
-
-
-export class CustomWorld {
-  browser!: Browser;
-  page!: Page;
-
-  login!: LoginPage;
-  nav!: NavigationPage;
-  addEmp!: AddEmployeePage;
-  laborTracking!:LaborTrackingPage;
-  reports!: ReportsPage;
-  importPayroll!:ImportPayrollPage;
-  lastReportName?: string;
-  payrollData: any[] = [];
-
-  //FIXED
-  reportPath?: string | null;
-  project?: string;
-
-  // ✅ ADD THESE
-  startDate?: string;
-  endDate?: string;
-  organization?: string;
-
-
-  async init(browser: Browser) {
-  this.browser = browser;
-
-  const context = await this.browser.newContext(); // no storageState
-  this.page = await context.newPage();
-
-  this.login = new LoginPage(this.page);
-  this.nav = new NavigationPage(this.page);
-  this.addEmp = new AddEmployeePage(this.page);
-  this.laborTracking = new LaborTrackingPage(this.page);
-  this.reports = new ReportsPage(this.page);
-  this.importPayroll=new ImportPayrollPage(this.page);
-}  
-  
-}
-
-setWorldConstructor(CustomWorld);
-
-*/

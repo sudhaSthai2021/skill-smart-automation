@@ -1,65 +1,57 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
-// ✅ ADD HERE (top level, not inside any function)
+import { PROJECT_NAME, USERS } from '../../test-data/testData';
+
 console.log('✅ reportVerificationSteps loaded');
 
-let firstName: string;
+//let firstName: string;
 
 // ======================================================
 
 Given('I login to the application', async function (this: CustomWorld) {
   await this.login.goto();
-  await this.login.login('360today@gmail.com', 'password');
 
-  const selectButton = this.page.getByRole('button', { name: 'Select' }).first();
-  await selectButton.click();
+  await this.login.login(
+    USERS.subcontractor1.email,
+    USERS.subcontractor1.password
+  );
+
+  await this.nav.selectProject(PROJECT_NAME);
 
   await expect(this.page).toHaveURL(/dashboard/);
 });
 
-// ======================================================
 
+
+
+
+// ======================================================
 When('I navigate to Add Employee page', async function (this: CustomWorld) {
-  console.log('--- Navigating to Add Employee page');
-
-  await this.laborTracking.goToAddEmployee();
-
-  await this.page.waitForURL(/employees\/editor\/employee\/000000/, {
-    timeout: 30000,
-  });
-
-  await expect(
-    this.page.getByText('Employee Information', { exact: true })
-  ).toBeVisible({ timeout: 30000 });
-
-  console.log('✅ Add Employee page opened');
-});
-/*
-
-Given('I navigate to Add Employee page', async function (this: CustomWorld) {
-  await this.page.goto(
-    'https://apr2026.skillsmart.us/#/insight/employees/editor/employee/000000000000000000000000'
-  );
-
-  await expect(this.page).toHaveURL(/employee\/000000/);
+  await this.laborTracking.goToAddEmployeeAndVerify();
 });
 
-*/
+
 
 // ======================================================
+
 
 When('I create a new employee', async function (this: CustomWorld) {
   const data = await this.addEmp.fillBasicDetails();
-  firstName = data.firstName;
+
+  this.workerFirstName = data.firstName;
+  this.workerLastName = data.lastName;
+  this.workerFullName = `${data.firstName} ${data.lastName}`;
 });
+
+
 
 // ======================================================
 
 When('I fill employee details', async function (this: CustomWorld) {
-  await this.addEmp.selectGender('Male');
-  await this.addEmp.selectEthnicity('Asian');
+  await this.addEmp.fillEmployeeDetails('Male', 'Asian');
 });
+
 
 
 //============================================================
@@ -101,10 +93,8 @@ When('I add pay rates', async function (this: CustomWorld) {
 
 
 
-// ======================================================
-
 Then('I should be able to search the employee', async function (this: CustomWorld) {
-  //await this.page.pause();
+  
     
    // ✅ mimic working flow
   await this.addEmp.clickEmployeesTab();
@@ -118,14 +108,14 @@ Then('I should be able to search the employee', async function (this: CustomWorl
  
 
    // ✅ Use your POM method (clean & reusable)
-  await this.addEmp.searchAndOpenEmployee(firstName);
+  await this.addEmp.searchAndOpenEmployee(this.workerFirstName);
 });
 
 // ======================================================
 
 Then('I delete the employee', async function (this: CustomWorld) {
-  //await this.page.pause();
+  
   
   await this.addEmp.deleteEmployee();
-  //await this.page.pause();
+  
 });

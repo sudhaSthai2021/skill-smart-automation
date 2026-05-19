@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@cucumber/cucumber';
+import { When, Then } from '@cucumber/cucumber';
 import { CustomWorld } from '../../support/world';
 
 // ======================================================
@@ -12,7 +12,6 @@ When(
   }
 
 );
-
 
 
 // ======================================================

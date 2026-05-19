@@ -24,7 +24,9 @@ Feature: Create, Assert, Delete Subcontractor flow
 
     
     When I navigate to View All Subcontractors page
+
     Then I should see subcontractor created successfully
 
     When I delete the subcontractor
+    
     Then subcontractor should be deleted

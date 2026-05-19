@@ -1,6 +1,8 @@
-import { Given, When, Then } from '@cucumber/cucumber';
+import { When, Then } from '@cucumber/cucumber';
 import { CustomWorld } from '../../support/world';
-import { expect } from '@playwright/test';
+
+const cleanText = (value: string = ''): string =>
+  value.replace(/SIGNED/gi, '').replace(/\s+/g, ' ').trim();
 
 // ======================================================
 // CREATE PAYROLL
@@ -12,53 +14,37 @@ When(
   }
 );
 
+
 When('I create a payroll', async function (this: CustomWorld) {
   const period = await this.createPayroll.selectPayrollPeriod();
+  const dates = this.createPayroll.extractDates(period);
 
-  const { startDate, endDate } =
-    this.createPayroll.extractDates(period);
-
-  this.startDate = startDate;
-  this.endDate = endDate;
+  this.startDate = dates.startDate;
+  this.endDate = dates.endDate;
 
   await this.createPayroll.clickCreate();
 });
 
+
 // ======================================================
 
 When('I fill payroll details', async function (this: CustomWorld) {
-  const paycheck = `PAY-${Date.now()}`;
- // this.payrollId = paycheck;
+   if (!this.startDate) {
+    throw new Error('❌ Payroll start date missing');
+  }
 
-  await this.createPayroll.fillHeader(paycheck, this.startDate!);
+  const paycheck = `PAY-${Date.now()}`;
+ 
+  await this.createPayroll.fillHeader(paycheck, this.startDate);
   await this.createPayroll.fillHours();
 });
 
 // ======================================================
-
 When('I save payroll', async function (this: CustomWorld) {
   await this.createPayroll.save();
-
-  const clean = (value: string) =>
-    value
-      .replace(/SIGNED/gi, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-  const organization = clean(await this.createPayroll.extractOrganization());
-
-  this.organization = organization;
-
-  this.createdPayroll = {
-    organization,
-    startDate: clean(this.startDate!),
-    endDate: clean(this.endDate!),
-  };
-
-  console.log('✅ Created Payroll Stored:', this.createdPayroll);
+  await this.storeCreatedPayroll();
 });
-
-
+ 
 // ======================================================
 
 When('I sign payroll', async function (this: CustomWorld) {
@@ -70,13 +56,6 @@ When('I sign payroll', async function (this: CustomWorld) {
 When('I generate A-1-131', async function (this: CustomWorld) {
   await this.createPayroll.generateA1131();
   await this.createPayroll.completeGeneration();
-});
-
-// ======================================================
-
-Then('I capture payroll week ending', async function (this: CustomWorld) {
-  const week = await this.createPayroll.extractWeekEnding();
-  console.log('Week Ending:', week);
 });
 
 // ======================================================

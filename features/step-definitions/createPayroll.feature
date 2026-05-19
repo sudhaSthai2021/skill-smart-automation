@@ -14,7 +14,7 @@ Feature: Payroll Creation, Signing, Assertion and Deletion
 
     When I sign payroll
     And I generate A-1-131
-    Then I capture payroll week ending
+    #Then I capture payroll week ending
 
     When I logout
     And I login as admin

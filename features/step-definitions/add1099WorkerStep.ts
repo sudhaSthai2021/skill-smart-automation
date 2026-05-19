@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
+import { PROJECT_NAME, USERS } from '../../test-data/testData';
+
+console.log('✅ add1099WorkerSteps loaded');
 
 
 // ======================================================
@@ -8,10 +11,12 @@ import { CustomWorld } from '../../support/world';
 // ======================================================
 
 Given('I login as subcontractor for 1099', async function (this: CustomWorld) {
-  //await this.login.navigateToLoginPage();
-
+  
   await this.login.goto();
-  await this.login.login('metadata@gmaiil.com', 'Govind@2003');
+  await this.login.login(
+    USERS.subcontractor.email,
+    USERS.subcontractor.password
+  );
 
   await this.page.waitForLoadState('networkidle');
   
@@ -25,15 +30,7 @@ Given('I login as subcontractor for 1099', async function (this: CustomWorld) {
 // ======================================================
 
 Given('I select project', async function (this: CustomWorld) {
-  const projectName = 'CSI-000002 | WTP Access Control Systems - Phase 1';
-
-  console.log(`--- Selecting project: ${projectName}`);
-
-  await this.nav.selectProject(projectName);
-
-  //await this.page.getByText(projectName, { exact: true }).click();
-
-  console.log('--- Project selected successfully');
+  await this.nav.selectProject(PROJECT_NAME);
 });
 
 // ======================================================
@@ -55,18 +52,19 @@ When('I navigate to Add 1099 Worker page', async function (this: CustomWorld) {
 
 When('I create 1099 worker', async function (this: CustomWorld) {
 
-  // Extract org (optional but useful)
+
   this.organization = await this.add1099.extractOrganization();
 
  const data = await this.add1099.fillBasicDetails();
  this.workerFirstName =data.firstName;
  this.workerLastName=data.lastName;
  this.workerName = `${data.firstName} ${data.lastName}`; // ✅ correct
+ this.workerFullName = this.workerName;
 
   await this.add1099.addAddress();
 
   await this.add1099.selectWorkClasses();
-//await this.page.pause();
+
 });
 
 
@@ -77,11 +75,8 @@ When('I create 1099 worker', async function (this: CustomWorld) {
 When('I save the worker', async function (this: CustomWorld) {
   await this.add1099.saveWorker();
 
-  // capture full name before toast disappears
-  this.workerFullName = this.workerName;
    console.log(`✅ Worker "${this.workerName}" is saved successfully`);
 
-   //await this.add1099.goToWorkersListFromAddPage();
 
    
 });
@@ -103,21 +98,6 @@ Then('I should find the worker in list', async function (this: CustomWorld) {
   
 
 
-
-
-
-// ======================================================
-// 🚪 LOGOUT
-// ======================================================
-
-
-
-// ======================================================
-// 🔐 LOGIN AS ADMIN
-// ======================================================
-
-
-
 // ======================================================
 // 🗂 NAVIGATE TO VIEW ALL 1099 WORKERS
 // ======================================================
@@ -125,34 +105,17 @@ Then('I should find the worker in list', async function (this: CustomWorld) {
 When('I navigate to View All 1099 Workers', async function (this: CustomWorld) {
   await this.laborTracking.goToView1099Workers();
 
-  //await this.page.getByText('1099 Management').click();
-
- // await expect(this.page.locator('text=1099 Worker List')).toBeVisible();
 });
 
 // ======================================================
 // ❌ DELETE WORKER
 // ======================================================
 
+
 Then('I delete the 1099 worker', async function (this: CustomWorld) {
-  // navigate if needed
   await this.laborTracking.goToView1099Workers();
 
-  await this.page.getByText('1099 Management').click();
-
-  // search worker
-  const search = this.page.locator('input[placeholder="Search"]');
-  await search.fill(this.workerName);
-
-  await this.page.waitForTimeout(2000);
-
-  const row = this.page.locator(`.rt-tr-group:has-text("${this.workerName}")`);
-
-  await expect(row).toBeVisible({ timeout: 10000 });
-
-  // open row
-  await row.first().click();
-
-  
+  await this.add1099.searchAndOpenWorkerFromViewAll(this.workerName);
 });
+
 

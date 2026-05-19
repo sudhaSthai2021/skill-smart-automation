@@ -1,6 +1,24 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
+
+const DEFAULT_PROJECT = 'CSI-000002 | WTP Access Control Systems - Phase 1';
+
+function resolveProjectName(projectName: string): string {
+  return projectName === 'DEFAULT_PROJECT'
+    ? DEFAULT_PROJECT
+    : projectName;
+}
+
+function ensurePayrollData(world: CustomWorld) {
+  if (!world.startDate || !world.endDate) {
+    throw new Error('❌ Payroll dates missing');
+  }
+
+  if (!world.payrollData.length) {
+    throw new Error('❌ Payroll data missing');
+  }
+}
+
 
 // ======================================================
 // COMMON STEPS
@@ -10,8 +28,8 @@ Given('I navigate to the application login page', async function (this: CustomWo
   await this.login.goto();
 });
 
-When('I login as user {string} with password {string}', async function (this: CustomWorld, email: string, pass: string) {
-  await this.login.login(email, pass);
+When('I login as user {string} with password {string}', async function (this: CustomWorld, email: string, password: string) {
+  await this.login.login(email, password);
 
   await this.page.waitForLoadState('networkidle');
 
@@ -21,28 +39,24 @@ When('I login as user {string} with password {string}', async function (this: Cu
   ]);
 });
 
-When('I navigate to the {string}', async function (this: CustomWorld, projectName: string) {
 
-  const finalProject = projectName === 'DEFAULT_PROJECT'
-    ? 'CSI-000002 | WTP Access Control Systems - Phase 1'
-    : projectName;
+When(
+  'I navigate to the {string}',
+  async function (this: CustomWorld, projectName: string) {
+    const finalProject = resolveProjectName(projectName);
 
-  console.log(`--- Navigating to project: ${finalProject}`);
+    console.log(`--- Navigating to project: ${finalProject}`);
 
-  const url = this.page.url();
+    if (!this.page.url().includes('/project/select')) {
+      console.log('--- Already inside a project, skipping selection');
+      return;
+    }
 
-  // ✅ If already inside a project → skip
-  if (!url.includes('/project/select')) {
-    console.log('--- Already inside a project, skipping selection');
-    return;
+    await this.nav.selectProject(finalProject);
+
+    console.log('--- Project selected successfully');
   }
-
-  // ✅ Use GLOBAL navigation method
-  await this.nav.selectProject(finalProject);
-
-  console.log('--- Project selected successfully');
-});
-
+);
 
 
 // ======================================================
@@ -57,43 +71,43 @@ When('I go to Labor Tracking -> Payroll -> View All Payrolls', async function (t
 await this.page.waitForLoadState('networkidle');
 });
 
-When('I extract payroll standard data for the current period', async function (this: CustomWorld) {
+When(
+  'I extract payroll standard data for the current period',
+  async function (this: CustomWorld) {
+    console.log('--- Extracting payroll data');
 
-  console.log('--- Extracting payroll data');
+    await this.page.waitForFunction(() => {
+      const rows = document.querySelectorAll('.ReactTable .rt-tbody .rt-tr');
 
-  await this.page.waitForFunction(() => {
-    const rows = document.querySelectorAll('.ReactTable .rt-tbody .rt-tr');
-    return Array.from(rows).some(r => (r.textContent || '').trim().length > 0);
-  });
+      return Array.from(rows).some(row =>
+        (row.textContent || '').trim().length > 0
+      );
+    });
 
-  // ✅ Get REAL dates from UI
-  const { startDate, endDate } = await this.laborTracking.getSelectedPayrollDates();
-  console.log('📅 Extracted Start Date:', startDate);
-  console.log('📅 Extracted End Date:', endDate);
+    const { startDate, endDate } =
+      await this.laborTracking.getSelectedPayrollDates();
 
+    if (!startDate || !endDate) {
+      throw new Error('❌ Payroll dates not found in UI');
+    }
 
-  if (!startDate || !endDate) {
-  throw new Error('❌ Payroll dates not found in UI');
-}
+    this.startDate = startDate;
+    this.endDate = endDate;
 
-  this.startDate = startDate;
-  this.endDate = endDate;
- 
+    this.payrollData =
+      await this.laborTracking.extractStandardPayrollData();
 
-  this.payrollData = await this.laborTracking.extractStandardPayrollData();
+    if (!this.payrollData.length) {
+      throw new Error('❌ No payroll data extracted');
+    }
 
-  if (!this.payrollData.length) {
-    throw new Error('❌ No payroll data extracted');
+    console.log('✅ Payroll data ready:', {
+      startDate: this.startDate,
+      endDate: this.endDate,
+      rows: this.payrollData.length,
+    });
   }
-   else {
-  console.log('No of rows:', this.payrollData.length);
-  }
-
-  // ✅ Pass to ReportsPage (IMPORTANT)
-  //this.reports.setPayrollData(this.payrollData);
-
-  console.log('✅ Payroll data ready');
-});
+);
 
 Then('I log out of the application', async function (this: CustomWorld) {
   await this.nav.logout();
@@ -120,8 +134,8 @@ When(
     }
 
     await this.reports.generateAllReports(
-      this.startDate,
-      this.endDate,
+      this.startDate!,
+      this.endDate!,
       this.payrollData
     );
 
