@@ -79,6 +79,27 @@ export class CustomWorld {
     this.createPayroll = new CreatePayrollPage(this.page);
     this.subcontractor = new SubcontractorPage(this.page);
   }
+  async storeCreatedPayroll() {
+  const clean = (value: string) =>
+    value
+      .replace(/SIGNED/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const organization = clean(
+    await this.createPayroll.extractOrganization()
+  );
+
+  this.organization = organization;
+
+  this.createdPayroll = {
+    organization,
+    startDate: clean(this.startDate!),
+    endDate: clean(this.endDate!),
+  };
+
+  console.log('✅ Created Payroll Stored:', this.createdPayroll);
+}
 }
 
 setWorldConstructor(CustomWorld);
