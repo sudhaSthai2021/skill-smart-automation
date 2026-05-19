@@ -1,8 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { CustomWorld } from '../../support/world';
 
-const cleanText = (value: string = ''): string =>
-  value.replace(/SIGNED/gi, '').replace(/\s+/g, ' ').trim();
+
 
 // ======================================================
 // CREATE PAYROLL

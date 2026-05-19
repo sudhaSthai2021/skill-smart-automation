@@ -5,8 +5,6 @@ import { PROJECT_NAME, USERS } from '../../test-data/testData';
 
 console.log('✅ reportVerificationSteps loaded');
 
-//let firstName: string;
-
 // ======================================================
 
 Given('I login to the application', async function (this: CustomWorld) {
