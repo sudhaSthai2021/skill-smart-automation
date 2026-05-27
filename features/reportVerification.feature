@@ -1,4 +1,4 @@
-@report
+@regression @report
 
 Feature: Report Verification across User Roles
 

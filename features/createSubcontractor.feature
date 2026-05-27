@@ -1,4 +1,4 @@
-@create_subcontractor
+@smoke @create_subcontractor
 Feature: Create, Assert, Delete Subcontractor flow
 
   Scenario: Create subcontractor and delete subcontractor

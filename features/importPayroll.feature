@@ -1,4 +1,4 @@
-@import_payroll
+@smoke @import_payroll
 Feature: Import, Assert,Delete Payroll
 
 Scenario: Create Excel layout and import payroll successfully
